@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SFS Android Share</title>
+<title>SFS SHARE PRO</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -16,12 +16,10 @@ body{
   color:white;
 }
 
-/* simple android style */
 header{
   padding:12px;
   background:#1e293b;
   text-align:center;
-  font-weight:bold;
 }
 
 .container{padding:12px}
@@ -39,6 +37,8 @@ input,select{
   padding:12px;
   margin-top:12px;
   border-radius:12px;
+  position:relative;
+  overflow:hidden;
 }
 
 .card img{
@@ -48,71 +48,63 @@ input,select{
 
 button{
   width:100%;
-  padding:12px;
+  padding:10px;
   margin-top:6px;
   border:none;
   border-radius:8px;
-  font-size:16px;
   cursor:pointer;
 }
 
-.open{
-  background:#22c55e;
+.open{background:#22c55e}
+
+/* FLOAT LIKE ANIMATION */
+.float{
+  position:absolute;
+  color:#22c55e;
+  font-weight:bold;
+  animation:up 1s linear forwards;
+  pointer-events:none;
 }
 
-/* modal */
-.modal{
-  display:none;
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.7);
-  justify-content:center;
-  align-items:center;
-}
-
-.box{
-  background:#020617;
-  padding:15px;
-  border-radius:12px;
-  width:95%;
+@keyframes up{
+  0%{opacity:1; transform:translateY(0)}
+  100%{opacity:0; transform:translateY(-80px)}
 }
 </style>
 </head>
 
 <body>
 
-<header>🚀 SFS SHARE ANDROID</header>
+<header>🚀 SFS SHARE PRO</header>
 
 <div class="container">
-  <input id="search" placeholder="Cari...">
-  <div id="list"></div>
-</div>
 
-<!-- ADD -->
-<div class="modal" id="addModal">
-  <div class="box">
-    <h3>Tambah</h3>
+<input id="search" placeholder="Cari...">
 
-    <input id="user" placeholder="User">
-    <input id="name" placeholder="Nama roket">
-    <input id="link" placeholder="Link">
-    
-    <select id="category">
-      <option>Rocket</option>
-      <option>Tank</option>
-      <option>Ship</option>
-    </select>
+<!-- ADD FORM -->
+<h3>Tambah Rocket</h3>
 
-    <input type="file" id="img">
+<input id="user" placeholder="Nama pembuat">
+<input id="name" placeholder="Nama roket">
+<input id="link" placeholder="Link SFS">
 
-    <button onclick="addRocket()" class="open">Simpan</button>
-    <button onclick="closeAdd()">Tutup</button>
-  </div>
+<select id="category">
+  <option value="Rocket">Rocket</option>
+  <option value="Tank">Tank</option>
+  <option value="Ship">Pesawat</option>
+</select>
+
+<input type="file" id="img">
+
+<button onclick="addRocket()" class="open">Simpan</button>
+
+<div id="list"></div>
+
 </div>
 
 <script>
 
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyDopQmdMEUdt-UFtbYZh76Y-2Wf17yL4T4",
   authDomain: "sfs-share-37061.firebaseapp.com",
@@ -125,6 +117,9 @@ const db = firebase.database().ref("items");
 
 let data = {};
 
+/* ANTI SPAM CLICK */
+let cooldown = {};
+
 /* REALTIME */
 db.on("value", snap=>{
   data = snap.val() || {};
@@ -135,25 +130,29 @@ db.on("value", snap=>{
 function render(){
   let arr = Object.entries(data);
 
-  document.getElementById("list").innerHTML =
-  arr.map(([k,r])=>`
-    <div class="card">
+  list.innerHTML = arr.map(([k,r])=>`
+    <div class="card" id="card${k}">
       <img src="${r.img}">
       <h3>${r.name}</h3>
       <div>by ${r.user} | ${r.cat}</div>
 
-      <!-- TOMBOL BUKA = AUTO LIKE +1 -->
-      <button class="open" onclick="openRocket('${k}','${r.link}')">
+      <button class="open" onclick="openRocket('${k}','${r.link}',event)">
         BUKA
       </button>
-
-      <div>❤️ ${r.like||0}</div>
     </div>
   `).join("");
 }
 
-/* BUKA = LIKE +1 */
-function openRocket(id,link){
+/* OPEN + LIKE + ANTI SPAM */
+function openRocket(id,link,e){
+
+  /* anti spam 2 detik */
+  if(cooldown[id] && Date.now()-cooldown[id] < 2000){
+    alert("Terlalu cepat!");
+    return;
+  }
+  cooldown[id] = Date.now();
+
   let item = data[id];
 
   db.child(id).update({
@@ -161,36 +160,70 @@ function openRocket(id,link){
   });
 
   window.open(link,"_blank");
+
+  /* FLOATING LIKE +1 */
+  let el = document.createElement("div");
+  el.className="float";
+  el.innerText="+1";
+  el.style.left = e.clientX+"px";
+  el.style.top = e.clientY+"px";
+
+  document.body.appendChild(el);
+
+  setTimeout(()=>el.remove(),1000);
 }
 
-/* ADD */
+/* ADD ROCKET */
 function addRocket(){
   let file = img.files[0];
+
   if(!file) return alert("Foto wajib!");
-  if(!name.value.trim()) return alert("Nama wajib!");
 
   let reader = new FileReader();
 
   reader.onload = function(){
+
     db.push({
       user:user.value||"user",
-      name:name.value.trim(),
-      link:link.value||"#",
+      name:name.value,
+      link:link.value,
       cat:category.value,
       img:reader.result,
       like:0
     });
 
-    closeAdd();
+    user.value="";
+    name.value="";
+    link.value="";
   };
 
   reader.readAsDataURL(file);
 }
 
-/* MODAL */
-function closeAdd(){
-  addModal.style.display="none";
-}
+/* SEARCH */
+search.oninput = ()=>{
+  let v = search.value.toLowerCase();
+
+  let filtered = Object.fromEntries(
+    Object.entries(data).filter(([k,r])=>
+      r.name.toLowerCase().includes(v)
+    )
+  );
+
+  let arr = Object.entries(filtered);
+
+  list.innerHTML = arr.map(([k,r])=>`
+    <div class="card">
+      <img src="${r.img}">
+      <h3>${r.name}</h3>
+      <div>by ${r.user} | ${r.cat}</div>
+
+      <button class="open" onclick="openRocket('${k}','${r.link}',event)">
+        BUKA
+      </button>
+    </div>
+  `).join("");
+};
 
 </script>
 
