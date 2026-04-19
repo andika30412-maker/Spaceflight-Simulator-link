@@ -1,1 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SFS SHARE PRO FULL</title>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  padding:12px;
+  background:#1e293b;
+}
+
+.card{
+  background:#065f46;
+  margin:10px;
+  padding:12px;
+  border-radius:12px;
+}
+
+.card img{
+  width:100%;
+  border-radius:10px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border:none;
+  border-radius:8px;
+}
+
+.open{background:#22c55e}
+.delete{background:#ef4444}
+
+/* FLOAT BTN */
+#addBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  font-size:30px;
+  background:#22c55e;
+  border:none;
+}
+
+/* MODAL */
+.modal{
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
+}
+
+.box{
+  background:#020617;
+  padding:15px;
+  border-radius:12px;
+  width:90%;
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border:none;
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div onclick="openAdmin()">⋮</div>
+  <div>SFS SHARE PRO</div>
+  <div onclick="openAdd()">＋</div>
+</header>
+
+<div id="list"></div>
+
+<button id="addBtn" onclick="openAdd()">+</button>
+
+<!-- ADD -->
+<div class="modal" id="addModal">
+  <div class="box">
+
+    <h3>Tambah Item</h3>
+
+    <input id="user" placeholder="Nama user">
+    <input id="name" placeholder="Nama item">
+    <input id="link" placeholder="Link">
+
+    <select id="cat">
+      <option>Rocket</option>
+      <option>Tank</option>
+      <option>Pesawat</option>
+      <option>Satellite</option>
+      <option>Kapal Bawah Laut</option>
+    </select>
+
+    <input type="file" id="img" accept="image/*">
+
+    <button class="open" onclick="addData()">SIMPAN</button>
+    <button onclick="closeAdd()">TUTUP</button>
+
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="modal" id="adminModal">
+  <div class="box">
+    <h3>ADMIN PANEL</h3>
+    <div id="adminList"></div>
+    <button onclick="closeAdmin()">TUTUP</button>
+  </div>
+</div>
+
+<script>
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyDopQmdMEUdt-UFtbYZh76Y-2Wf17yL4T4",
+  authDomain: "sfs-share-37061.firebaseapp.com",
+  databaseURL: "https://sfs-share-37061-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sfs-share-37061"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref("items");
+
+let data = {};
+
+/* REALTIME */
+db.on("value", snap=>{
+  data = snap.val() || {};
+  render();
+});
+
+/* RENDER */
+function render(){
+  list.innerHTML = Object.entries(data).map(([k,r])=>`
+    <div class="card">
+      <img src="${r.img}">
+      <h3>${r.name}</h3>
+      <div>by ${r.user} | ${r.cat}</div>
+
+      <button class="open" onclick="window.open('${r.link}','_blank')">
+        BUKA
+      </button>
+    </div>
+  `).join("");
+}
+
+/* ADD */
+function addData(){
+
+  let file = img.files[0];
+  if(!file) return alert("Foto wajib!");
+
+  let reader = new FileReader();
+
+  reader.onload = function(){
+
+    db.push({
+      user:user.value||"user",
+      name:name.value,
+      link:link.value||"#",
+      cat:cat.value,
+      img:reader.result,
+      like:0
+    });
+
+    closeAdd();
+  };
+
+  reader.readAsDataURL(file);
+}
+
+/* ADMIN */
+function openAdmin(){
+  let pw = prompt("Password Admin:");
+  if(pw !== "1113292627") return alert("Salah!");
+
+  adminModal.style.display="flex";
+  loadAdmin();
+}
+
+function loadAdmin(){
+  adminList.innerHTML = Object.entries(data).map(([k,r])=>`
+    <div class="card">
+
+      <input id="n${k}" value="${r.name}">
+      <input id="l${k}" value="${r.link}">
+
+      <select id="c${k}">
+        <option ${r.cat==="Rocket"?"selected":""}>Rocket</option>
+        <option ${r.cat==="Tank"?"selected":""}>Tank</option>
+        <option ${r.cat==="Pesawat"?"selected":""}>Pesawat</option>
+        <option ${r.cat==="Satellite"?"selected":""}>Satellite</option>
+        <option ${r.cat==="Kapal Bawah Laut"?"selected":""}>Kapal Bawah Laut</option>
+      </select>
+
+      <input type="file" id="i${k}" accept="image/*">
+
+      <button onclick="saveEdit('${k}')">SIMPAN EDIT</button>
+      <button class="delete" onclick="db.child('${k}').remove()">HAPUS</button>
+
+    </div>
+  `).join("");
+}
+
+/* EDIT SAVE */
+function saveEdit(id){
+
+  let file = document.getElementById("i"+id).files[0];
+  let name = document.getElementById("n"+id).value;
+  let link = document.getElementById("l"+id).value;
+  let cat  = document.getElementById("c"+id).value;
+
+  function update(img){
+    db.child(id).update({
+      name:name,
+      link:link,
+      cat:cat,
+      img:img||data[id].img
+    });
+  }
+
+  if(file){
+    let reader=new FileReader();
+    reader.onload=()=>update(reader.result);
+    reader.readAsDataURL(file);
+  }else{
+    update(null);
+  }
+
+  alert("Updated 🚀");
+}
+
+/* MODAL */
+function openAdd(){addModal.style.display="flex";}
+function closeAdd(){addModal.style.display="none";}
+function closeAdmin(){adminModal.style.display="none";}
+
+</script>
+
+</body>
+</html>
