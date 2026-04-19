@@ -9,7 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
+body{margin:0;font-family:Arial;background:#0f172a;color:white}
 
 header{
   display:flex;
@@ -22,7 +22,7 @@ header{
 
 .container{padding:12px}
 
-input{
+input,select{
   width:100%;
   padding:12px;
   margin:6px 0;
@@ -50,11 +50,12 @@ input{
 
 button{
   width:100%;
-  padding:12px;
+  padding:10px;
   margin-top:6px;
   border:none;
   border-radius:8px;
-  font-size:16px;
+  font-size:15px;
+  cursor:pointer;
 }
 
 .open{background:#22c55e}
@@ -79,69 +80,48 @@ button{
   max-height:90%;
   overflow:auto;
 }
-
-/* MENU */
-#menu{
-  display:none;
-  position:absolute;
-  top:50px;
-  left:10px;
-  background:#1e293b;
-  padding:10px;
-  border-radius:12px;
-  width:200px;
-}
-
-#menu div{
-  padding:12px;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-#menu div:hover{
-  background:#334155;
-}
 </style>
 </head>
 
 <body>
 
 <header>
-  <div class="icon" onclick="toggleMenu()">⋮</div>
+  <div onclick="openAdd()">＋</div>
   <div>🚀 SFS SHARE</div>
-  <div class="icon" onclick="openAdd()">＋</div>
-
-  <div id="menu">
-    <div onclick="focusSearch()">🔍 Cari</div>
-    <div onclick="openAdd()">➕ Tambah</div>
-    <div onclick="openAdmin()">⚙️ Admin</div>
-  </div>
+  <div onclick="openAdmin()">⚙️</div>
 </header>
 
 <div class="container">
-  <input id="search" placeholder="Cari roket...">
+  <input id="search" placeholder="Cari...">
   <div id="list"></div>
 </div>
 
 <!-- ADD -->
 <div class="modal" id="addModal">
   <div class="box">
-    <h3>Tambah Rocket</h3>
+    <h3>Tambah</h3>
 
-    <input id="user" placeholder="Nama user">
-    <input id="name" placeholder="Nama roket (wajib)">
+    <input id="user" placeholder="User">
+    <input id="name" placeholder="Nama roket">
     <input id="link" placeholder="Link SFS">
+
+    <select id="category">
+      <option>Rocket</option>
+      <option>Tank</option>
+      <option>Ship</option>
+    </select>
+
     <input type="file" id="img" accept="image/*">
 
-    <button class="open" onclick="addRocket()">Simpan</button>
-    <button onclick="closeAdd()">Batal</button>
+    <button onclick="addRocket()" class="open">Simpan</button>
+    <button onclick="closeAdd()">Tutup</button>
   </div>
 </div>
 
 <!-- ADMIN -->
 <div class="modal" id="adminModal">
   <div class="box">
-    <h3>Admin Panel</h3>
+    <h3>Admin</h3>
     <div id="adminList"></div>
     <button onclick="closeAdmin()">Tutup</button>
   </div>
@@ -149,38 +129,46 @@ button{
 
 <script>
 
-/* 🔥 FIREBASE KAMU */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyDopQmdMEUdt-UFtbYZh76Y-2Wf17yL4T4",
   authDomain: "sfs-share-37061.firebaseapp.com",
   databaseURL: "https://sfs-share-37061-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "sfs-share-37061",
-  storageBucket: "sfs-share-37061.firebasestorage.app",
-  messagingSenderId: "464559746113",
-  appId: "1:464559746113:web:2318cf9a65c8bdce2b6ac0"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database().ref("rockets");
+const db = firebase.database().ref("items");
 
-let data = [];
+let data = {};
 
-/* REALTIME LOAD */
+/* REALTIME */
 db.on("value", snap=>{
-  let val = snap.val() || {};
-  data = Object.values(val);
-  render(data);
+  data = snap.val() || {};
+  render();
 });
 
 /* RENDER */
-function render(list){
+function render(){
+  let arr = Object.entries(data);
+
   document.getElementById("list").innerHTML =
-  list.map(r=>`
+  arr.map(([k,r])=>`
     <div class="card">
       <img src="${r.img}">
       <h3>${r.name}</h3>
-      <div class="user">by ${r.user}</div>
+      <div class="user">by ${r.user} | ${r.cat}</div>
+
       <button class="open" onclick="window.open('${r.link}')">Buka</button>
+
+      <button onclick="like('${k}')">❤️ ${r.like||0}</button>
+
+      <input id="c${k}" placeholder="Komentar">
+      <button onclick="comment('${k}')">Kirim</button>
+
+      <div>
+        ${(r.comments||[]).map(c=>`💬 ${c}<br>`).join("")}
+      </div>
     </div>
   `).join("");
 }
@@ -188,47 +176,52 @@ function render(list){
 /* ADD */
 function addRocket(){
   let file = img.files[0];
-
   if(!file) return alert("Foto wajib!");
-  if(!name.value.trim()) return alert("Nama wajib!");
+  if(!name.value) return alert("Nama wajib!");
 
   let reader = new FileReader();
 
   reader.onload = function(){
-
     db.push({
-      user: user.value || "user",
-      name: name.value,
-      link: link.value,
-      img: reader.result
+      user:user.value||"user",
+      name:name.value,
+      link:link.value,
+      cat:category.value,
+      img:reader.result,
+      like:0,
+      comments:[]
     });
 
-    alert("Tersimpan semua HP!");
     closeAdd();
   };
 
   reader.readAsDataURL(file);
 }
 
-/* MENU */
-function toggleMenu(){
-  menu.style.display = menu.style.display==="none"?"block":"none";
+/* LIKE */
+function like(id){
+  let item = data[id];
+  db.child(id).update({
+    like:(item.like||0)+1
+  });
 }
 
-function focusSearch(){
-  menu.style.display="none";
-  search.focus();
+/* COMMENT */
+function comment(id){
+  let input = document.getElementById("c"+id);
+  if(!input.value) return;
+
+  let item = data[id];
+  let arr = item.comments||[];
+
+  arr.push(input.value);
+
+  db.child(id).update({
+    comments:arr
+  });
+
+  input.value="";
 }
-
-/* SEARCH */
-search.oninput = ()=>{
-  let v = search.value.toLowerCase();
-  render(data.filter(r=>r.name.toLowerCase().includes(v)));
-};
-
-/* MODAL */
-function openAdd(){addModal.style.display="flex";}
-function closeAdd(){addModal.style.display="none";}
 
 /* ADMIN */
 function openAdmin(){
@@ -236,33 +229,34 @@ function openAdmin(){
   if(pw === "$119617555285jjhcwif9961"){
     adminModal.style.display="flex";
     loadAdmin();
-  } else {
-    alert("Salah!");
+  }else{
+    alert("Salah");
   }
 }
-
-function closeAdmin(){adminModal.style.display="none";}
 
 function loadAdmin(){
-  db.once("value", snap=>{
-    let val = snap.val() || {};
-    let arr = Object.entries(val);
+  let arr = Object.entries(data);
 
-    document.getElementById("adminList").innerHTML =
-    arr.map(([key,r])=>`
-      <div class="card">
-        <h3>${r.name}</h3>
-        <button class="delete" onclick="del('${key}')">Hapus</button>
-      </div>
-    `).join("");
-  });
+  adminList.innerHTML = arr.map(([k,r])=>`
+    <div class="card">
+      <h3>${r.name}</h3>
+      <button class="delete" onclick="db.child('${k}').remove()">Hapus</button>
+    </div>
+  `).join("");
 }
 
-function del(key){
-  if(confirm("Hapus?")){
-    db.child(key).remove();
-  }
-}
+/* MODAL */
+function openAdd(){addModal.style.display="flex";}
+function closeAdd(){addModal.style.display="none";}
+function closeAdmin(){adminModal.style.display="none";}
+
+/* SEARCH */
+search.oninput = ()=>{
+  let v = search.value.toLowerCase();
+  render(Object.fromEntries(
+    Object.entries(data).filter(([k,r])=>r.name.toLowerCase().includes(v))
+  ));
+};
 
 </script>
 
