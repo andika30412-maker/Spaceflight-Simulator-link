@@ -6,53 +6,108 @@
 <title>SFS Share</title>
 
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+}
 
 header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:12px;background:#1e293b;position:relative
+  display:flex;
+  justify-content:space-between;
+  padding:12px;
+  background:#1e293b;
+  position:relative;
 }
-.icon{font-size:22px;cursor:pointer;padding:8px}
+
+.icon{
+  font-size:22px;
+  cursor:pointer;
+  padding:8px;
+}
 
 .container{padding:12px}
 
 input{
-  width:100%;padding:12px;margin:6px 0;
-  border:none;border-radius:8px;font-size:16px
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
 }
 
 .card{
-  background:#065f46;padding:12px;border-radius:12px;margin-top:12px
+  background:#065f46;
+  padding:12px;
+  border-radius:12px;
+  margin-top:12px;
 }
-.card img{width:100%;border-radius:10px}
 
-.user{font-size:13px;color:#ccc}
+.card img{
+  width:100%;
+  border-radius:10px;
+}
+
+.user{
+  font-size:13px;
+  color:#ccc;
+}
 
 button{
-  width:100%;padding:12px;margin-top:6px;
-  border:none;border-radius:8px;font-size:16px;cursor:pointer
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
 }
+
 .open{background:#22c55e}
 .delete{background:#ef4444}
 
-/* modal */
+/* MODAL */
 .modal{
-  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-  background:rgba(0,0,0,0.7);justify-content:center;align-items:center
-}
-.box{
-  background:#020617;padding:15px;border-radius:12px;
-  width:95%;max-height:90%;overflow:auto
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:center;
 }
 
-/* menu */
-#menu{
-  display:none;position:absolute;top:55px;left:10px;
-  background:#1e293b;padding:10px;border-radius:12px;width:200px
+.box{
+  background:#020617;
+  padding:15px;
+  border-radius:12px;
+  width:95%;
+  max-height:90%;
+  overflow:auto;
 }
-#menu div{padding:12px;border-radius:8px}
-#menu div:hover{background:#334155}
+
+/* MENU */
+#menu{
+  display:none;
+  position:absolute;
+  top:55px;
+  left:10px;
+  background:#1e293b;
+  padding:10px;
+  border-radius:12px;
+  width:200px;
+}
+
+#menu div{
+  padding:12px;
+  border-radius:8px;
+}
+
+#menu div:hover{
+  background:#334155;
+}
 </style>
 </head>
 
@@ -75,10 +130,10 @@ button{
   <div id="list"></div>
 </div>
 
-<!-- TAMBAH -->
+<!-- ADD -->
 <div class="modal" id="addModal">
   <div class="box">
-    <h3>Tambah</h3>
+    <h3>Tambah Rocket</h3>
 
     <input id="username" placeholder="Nama user (opsional)">
     <input id="name" placeholder="Nama roket (wajib)">
@@ -93,15 +148,25 @@ button{
 <!-- ADMIN -->
 <div class="modal" id="adminModal">
   <div class="box">
-    <h3>Admin</h3>
+    <h3>Admin Panel</h3>
     <div id="adminList"></div>
     <button onclick="closeAdmin()">Tutup</button>
   </div>
 </div>
 
 <script>
-let rockets = JSON.parse(localStorage.getItem("rockets")) || [];
 
+let rockets = [];
+
+// 🔥 AMBIL DATA ONLINE (BIAR SEMUA HP SAMA)
+fetch("data.json")
+.then(res => res.json())
+.then(data=>{
+  rockets = data;
+  render();
+});
+
+// ELEMENT
 const list = document.getElementById("list");
 const search = document.getElementById("search");
 const addModal = document.getElementById("addModal");
@@ -112,88 +177,85 @@ const username = document.getElementById("username");
 const nameInput = document.getElementById("name");
 const link = document.getElementById("link");
 const imgInput = document.getElementById("imgInput");
+
 const adminList = document.getElementById("adminList");
 
-/* MENU */
+// MENU
 function toggleMenu(){
   menu.style.display = menu.style.display==="none"?"block":"none";
 }
-document.addEventListener("click",function(e){
+
+document.addEventListener("click",e=>{
   if(!e.target.closest("#menu") && !e.target.classList.contains("icon")){
     menu.style.display="none";
   }
 });
+
 function focusSearch(){
   menu.style.display="none";
   search.focus();
 }
 
-/* RENDER */
+// RENDER
 function render(data=rockets){
   list.innerHTML = data.map(r=>`
     <div class="card">
       <img src="${r.img}">
       <h3>${r.name}</h3>
       <div class="user">by ${r.user}</div>
-      <button class="open" onclick="openLink('${r.link}')">Buka</button>
+      <button class="open" onclick="window.open('${r.link}')">Buka</button>
     </div>
   `).join("");
 }
-render();
 
-/* SEARCH */
-search.addEventListener("input",function(){
-  let val = search.value.toLowerCase();
-  render(rockets.filter(r=>r.name.toLowerCase().includes(val)));
+// SEARCH
+search.addEventListener("input",()=>{
+  let v = search.value.toLowerCase();
+  render(rockets.filter(r=>r.name.toLowerCase().includes(v)));
 });
 
-/* LINK */
-function openLink(l){
-  if(!l) return alert("Link kosong!");
-  window.open(l,"_blank");
-}
-
-/* ADD */
+// ADD
 function openAdd(){addModal.style.display="flex";}
 function closeAdd(){addModal.style.display="none";}
 
+// SAVE (masih lokal demo)
 function saveRocket(){
   let file = imgInput.files[0];
 
-  if(!file){alert("Foto wajib!");return;}
-  if(!nameInput.value.trim()){alert("Nama roket wajib!");return;}
+  if(!file) return alert("Foto wajib!");
+  if(!nameInput.value.trim()) return alert("Nama wajib!");
 
   let reader = new FileReader();
-  reader.onload = function(){
-    rockets.push({
-      user: username.value.trim() || "user",
-      name: nameInput.value.trim(),
-      link: link.value || "",
-      img: reader.result
-    });
 
-    localStorage.setItem("rockets",JSON.stringify(rockets));
+  reader.onload=function(){
+    let newData = {
+      user: username.value || "user",
+      name: nameInput.value,
+      link: link.value || "#",
+      img: reader.result
+    };
+
+    rockets.push(newData);
+
+    alert("Data tersimpan (demo). Untuk online harus pakai backend!");
     render();
     closeAdd();
-
-    username.value="";
-    nameInput.value="";
-    link.value="";
-    imgInput.value="";
   };
+
   reader.readAsDataURL(file);
 }
 
-/* ADMIN */
+// ADMIN
 function openAdmin(){
-  let pw = prompt("Password:");
+  let pw = prompt("Password admin:");
   if(pw === "$119617555285jjhcwif9961"){
     adminModal.style.display="flex";
     loadAdmin();
-  } else {
+  }else{
     alert("Salah");
   }
 }
+
 function closeAdmin(){adminModal.style.display="none";}
 
 function loadAdmin(){
@@ -207,14 +269,13 @@ function loadAdmin(){
 }
 
 function del(i){
-  if(!confirm("Hapus?")) return;
-
-  rockets.splice(i,1);
-  localStorage.setItem("rockets",JSON.stringify(rockets));
-
-  loadAdmin();
-  render();
+  if(confirm("Hapus?")){
+    rockets.splice(i,1);
+    render();
+    loadAdmin();
+  }
 }
+
 </script>
 
 </body>
