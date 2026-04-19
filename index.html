@@ -9,7 +9,12 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#0f172a;color:white}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+}
 
 header{
   display:flex;
@@ -18,9 +23,14 @@ header{
   background:#1e293b;
 }
 
-.icon{font-size:22px;cursor:pointer}
+.icon{
+  font-size:22px;
+  cursor:pointer;
+}
 
-.container{padding:12px}
+.container{
+  padding:12px;
+}
 
 input,select{
   width:100%;
@@ -99,11 +109,11 @@ button{
 <!-- ADD -->
 <div class="modal" id="addModal">
   <div class="box">
-    <h3>Tambah</h3>
+    <h3>Tambah Rocket</h3>
 
     <input id="user" placeholder="User">
-    <input id="name" placeholder="Nama roket">
-    <input id="link" placeholder="Link SFS">
+    <input id="name" placeholder="Nama roket (wajib)">
+    <input id="link" placeholder="Link">
 
     <select id="category">
       <option>Rocket</option>
@@ -121,7 +131,7 @@ button{
 <!-- ADMIN -->
 <div class="modal" id="adminModal">
   <div class="box">
-    <h3>Admin</h3>
+    <h3>Admin Panel</h3>
     <div id="adminList"></div>
     <button onclick="closeAdmin()">Tutup</button>
   </div>
@@ -134,7 +144,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDopQmdMEUdt-UFtbYZh76Y-2Wf17yL4T4",
   authDomain: "sfs-share-37061.firebaseapp.com",
   databaseURL: "https://sfs-share-37061-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "sfs-share-37061",
+  projectId: "sfs-share-37061"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -147,6 +157,13 @@ db.on("value", snap=>{
   data = snap.val() || {};
   render();
 });
+
+/* FIX ELEMENT (ANTI BUG NAMA) */
+const user = document.getElementById("user");
+const name = document.getElementById("name");
+const link = document.getElementById("link");
+const img = document.getElementById("img");
+const category = document.getElementById("category");
 
 /* RENDER */
 function render(){
@@ -166,33 +183,43 @@ function render(){
       <input id="c${k}" placeholder="Komentar">
       <button onclick="comment('${k}')">Kirim</button>
 
-      <div>
-        ${(r.comments||[]).map(c=>`💬 ${c}<br>`).join("")}
-      </div>
+      <div>${(r.comments||[]).map(c=>"💬 "+c+"<br>").join("")}</div>
     </div>
   `).join("");
 }
 
-/* ADD */
+/* ADD (FIX TOTAL BUG NAME) */
 function addRocket(){
   let file = img.files[0];
-  if(!file) return alert("Foto wajib!");
-  if(!name.value) return alert("Nama wajib!");
+
+  if(!file){
+    alert("Foto wajib!");
+    return;
+  }
+
+  if(!name.value || name.value.trim() === ""){
+    alert("Nama roket wajib!");
+    return;
+  }
 
   let reader = new FileReader();
 
   reader.onload = function(){
     db.push({
-      user:user.value||"user",
-      name:name.value,
-      link:link.value,
-      cat:category.value,
-      img:reader.result,
+      user: user.value || "user",
+      name: name.value.trim(),
+      link: link.value || "#",
+      cat: category.value,
+      img: reader.result,
       like:0,
       comments:[]
     });
 
     closeAdd();
+
+    user.value="";
+    name.value="";
+    link.value="";
   };
 
   reader.readAsDataURL(file);
@@ -209,7 +236,7 @@ function like(id){
 /* COMMENT */
 function comment(id){
   let input = document.getElementById("c"+id);
-  if(!input.value) return;
+  if(!input.value.trim()) return;
 
   let item = data[id];
   let arr = item.comments||[];
@@ -245,18 +272,9 @@ function loadAdmin(){
   `).join("");
 }
 
-/* MODAL */
-function openAdd(){addModal.style.display="flex";}
 function closeAdd(){addModal.style.display="none";}
+function openAdd(){addModal.style.display="flex";}
 function closeAdmin(){adminModal.style.display="none";}
-
-/* SEARCH */
-search.oninput = ()=>{
-  let v = search.value.toLowerCase();
-  render(Object.fromEntries(
-    Object.entries(data).filter(([k,r])=>r.name.toLowerCase().includes(v))
-  ));
-};
 
 </script>
 
