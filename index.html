@@ -3,29 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SFS Share</title>
+<title>SFS SHARE REAL</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-}
+body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
 
 header{
   display:flex;
   justify-content:space-between;
   padding:12px;
   background:#1e293b;
-  position:relative;
 }
 
-.icon{
-  font-size:22px;
-  cursor:pointer;
-  padding:8px;
-}
+.icon{font-size:22px;cursor:pointer}
 
 .container{padding:12px}
 
@@ -62,7 +55,6 @@ button{
   border:none;
   border-radius:8px;
   font-size:16px;
-  cursor:pointer;
 }
 
 .open{background:#22c55e}
@@ -92,7 +84,7 @@ button{
 #menu{
   display:none;
   position:absolute;
-  top:55px;
+  top:50px;
   left:10px;
   background:#1e293b;
   padding:10px;
@@ -103,6 +95,7 @@ button{
 #menu div{
   padding:12px;
   border-radius:8px;
+  cursor:pointer;
 }
 
 #menu div:hover{
@@ -115,7 +108,7 @@ button{
 
 <header>
   <div class="icon" onclick="toggleMenu()">⋮</div>
-  <div>🚀 SFS Share</div>
+  <div>🚀 SFS SHARE</div>
   <div class="icon" onclick="openAdd()">＋</div>
 
   <div id="menu">
@@ -135,12 +128,12 @@ button{
   <div class="box">
     <h3>Tambah Rocket</h3>
 
-    <input id="username" placeholder="Nama user (opsional)">
+    <input id="user" placeholder="Nama user">
     <input id="name" placeholder="Nama roket (wajib)">
     <input id="link" placeholder="Link SFS">
-    <input type="file" id="imgInput" accept="image/*">
+    <input type="file" id="img" accept="image/*">
 
-    <button class="open" onclick="saveRocket()">Simpan</button>
+    <button class="open" onclick="addRocket()">Simpan</button>
     <button onclick="closeAdd()">Batal</button>
   </div>
 </div>
@@ -156,49 +149,33 @@ button{
 
 <script>
 
-let rockets = [];
+/* 🔥 FIREBASE KAMU */
+const firebaseConfig = {
+  apiKey: "AIzaSyDopQmdMEUdt-UFtbYZh76Y-2Wf17yL4T4",
+  authDomain: "sfs-share-37061.firebaseapp.com",
+  databaseURL: "https://sfs-share-37061-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sfs-share-37061",
+  storageBucket: "sfs-share-37061.firebasestorage.app",
+  messagingSenderId: "464559746113",
+  appId: "1:464559746113:web:2318cf9a65c8bdce2b6ac0"
+};
 
-// 🔥 AMBIL DATA ONLINE (BIAR SEMUA HP SAMA)
-fetch("data.json")
-.then(res => res.json())
-.then(data=>{
-  rockets = data;
-  render();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref("rockets");
+
+let data = [];
+
+/* REALTIME LOAD */
+db.on("value", snap=>{
+  let val = snap.val() || {};
+  data = Object.values(val);
+  render(data);
 });
 
-// ELEMENT
-const list = document.getElementById("list");
-const search = document.getElementById("search");
-const addModal = document.getElementById("addModal");
-const adminModal = document.getElementById("adminModal");
-const menu = document.getElementById("menu");
-
-const username = document.getElementById("username");
-const nameInput = document.getElementById("name");
-const link = document.getElementById("link");
-const imgInput = document.getElementById("imgInput");
-
-const adminList = document.getElementById("adminList");
-
-// MENU
-function toggleMenu(){
-  menu.style.display = menu.style.display==="none"?"block":"none";
-}
-
-document.addEventListener("click",e=>{
-  if(!e.target.closest("#menu") && !e.target.classList.contains("icon")){
-    menu.style.display="none";
-  }
-});
-
-function focusSearch(){
-  menu.style.display="none";
-  search.focus();
-}
-
-// RENDER
-function render(data=rockets){
-  list.innerHTML = data.map(r=>`
+/* RENDER */
+function render(list){
+  document.getElementById("list").innerHTML =
+  list.map(r=>`
     <div class="card">
       <img src="${r.img}">
       <h3>${r.name}</h3>
@@ -208,71 +185,82 @@ function render(data=rockets){
   `).join("");
 }
 
-// SEARCH
-search.addEventListener("input",()=>{
-  let v = search.value.toLowerCase();
-  render(rockets.filter(r=>r.name.toLowerCase().includes(v)));
-});
-
-// ADD
-function openAdd(){addModal.style.display="flex";}
-function closeAdd(){addModal.style.display="none";}
-
-// SAVE (masih lokal demo)
-function saveRocket(){
-  let file = imgInput.files[0];
+/* ADD */
+function addRocket(){
+  let file = img.files[0];
 
   if(!file) return alert("Foto wajib!");
-  if(!nameInput.value.trim()) return alert("Nama wajib!");
+  if(!name.value.trim()) return alert("Nama wajib!");
 
   let reader = new FileReader();
 
-  reader.onload=function(){
-    let newData = {
-      user: username.value || "user",
-      name: nameInput.value,
-      link: link.value || "#",
+  reader.onload = function(){
+
+    db.push({
+      user: user.value || "user",
+      name: name.value,
+      link: link.value,
       img: reader.result
-    };
+    });
 
-    rockets.push(newData);
-
-    alert("Data tersimpan (demo). Untuk online harus pakai backend!");
-    render();
+    alert("Tersimpan semua HP!");
     closeAdd();
   };
 
   reader.readAsDataURL(file);
 }
 
-// ADMIN
+/* MENU */
+function toggleMenu(){
+  menu.style.display = menu.style.display==="none"?"block":"none";
+}
+
+function focusSearch(){
+  menu.style.display="none";
+  search.focus();
+}
+
+/* SEARCH */
+search.oninput = ()=>{
+  let v = search.value.toLowerCase();
+  render(data.filter(r=>r.name.toLowerCase().includes(v)));
+};
+
+/* MODAL */
+function openAdd(){addModal.style.display="flex";}
+function closeAdd(){addModal.style.display="none";}
+
+/* ADMIN */
 function openAdmin(){
-  let pw = prompt("Password admin:");
+  let pw = prompt("Password:");
   if(pw === "$119617555285jjhcwif9961"){
     adminModal.style.display="flex";
     loadAdmin();
-  }else{
-    alert("Salah");
+  } else {
+    alert("Salah!");
   }
 }
 
 function closeAdmin(){adminModal.style.display="none";}
 
 function loadAdmin(){
-  adminList.innerHTML = rockets.map((r,i)=>`
-    <div class="card">
-      <h3>${r.name}</h3>
-      <div class="user">${r.user}</div>
-      <button class="delete" onclick="del(${i})">Hapus</button>
-    </div>
-  `).join("");
+  db.once("value", snap=>{
+    let val = snap.val() || {};
+    let arr = Object.entries(val);
+
+    document.getElementById("adminList").innerHTML =
+    arr.map(([key,r])=>`
+      <div class="card">
+        <h3>${r.name}</h3>
+        <button class="delete" onclick="del('${key}')">Hapus</button>
+      </div>
+    `).join("");
+  });
 }
 
-function del(i){
+function del(key){
   if(confirm("Hapus?")){
-    rockets.splice(i,1);
-    render();
-    loadAdmin();
+    db.child(key).remove();
   }
 }
 
