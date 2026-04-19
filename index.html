@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SFS SHARE PRO V2</title>
+<title>SFS SHARE PRO FIX</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -29,8 +29,8 @@ header{
   width:90%;
   margin:10px;
   padding:12px;
-  border:none;
   border-radius:10px;
+  border:none;
 }
 
 /* CARD */
@@ -53,6 +53,7 @@ button{
   margin-top:6px;
   border:none;
   border-radius:8px;
+  cursor:pointer;
 }
 
 .open{background:#22c55e;color:white}
@@ -70,7 +71,7 @@ button{
   100%{opacity:0;transform:translateY(-80px)}
 }
 
-/* FLOAT + BUTTON */
+/* ADD BUTTON */
 #addBtn{
   position:fixed;
   bottom:20px;
@@ -82,7 +83,6 @@ button{
   background:#22c55e;
   color:black;
   border:none;
-  cursor:pointer;
 }
 
 /* MODAL */
@@ -107,21 +107,21 @@ input,select{
   width:100%;
   padding:10px;
   margin:5px 0;
-  border-radius:8px;
   border:none;
+  border-radius:8px;
 }
 </style>
 </head>
 
 <body>
 
-<header>🚀 SFS SHARE PRO</header>
+<header>🚀 SFS SHARE PRO FIX</header>
 
 <input id="search" placeholder="Cari roket / tank / pesawat...">
 
 <div id="list"></div>
 
-<!-- FLOAT ADD BUTTON -->
+<!-- FLOAT + BUTTON -->
 <button id="addBtn" onclick="openAdd()">+</button>
 
 <!-- ADD MODAL -->
@@ -131,8 +131,8 @@ input,select{
     <h3>Tambah Item</h3>
 
     <input id="user" placeholder="Nama pembuat">
-    <input id="name" placeholder="Nama item">
-    <input id="link" placeholder="Link SFS">
+    <input id="name" placeholder="Nama roket">
+    <input id="link" placeholder="Link">
 
     <select id="category">
       <option>Rocket</option>
@@ -191,7 +191,7 @@ function render(){
 function openRocket(id,link,e){
 
   if(cooldown[id] && Date.now()-cooldown[id] < 2000){
-    alert("Terlalu cepat!");
+    alert("Tunggu sebentar!");
     return;
   }
   cooldown[id]=Date.now();
@@ -209,27 +209,47 @@ function openRocket(id,link,e){
   el.innerText="+1";
   el.style.left=e.clientX+"px";
   el.style.top=e.clientY+"px";
-  document.body.appendChild(el);
 
+  document.body.appendChild(el);
   setTimeout(()=>el.remove(),1000);
 }
 
-/* ADD */
+/* FIX ADD (NO BUG KONFIRMASI) */
 function addRocket(){
-  let file = img.files[0];
-  if(!file) return alert("Foto wajib!");
+
+  let file = document.getElementById("img").files[0];
+  let user = document.getElementById("user");
+  let name = document.getElementById("name");
+  let link = document.getElementById("link");
+  let category = document.getElementById("category");
+
+  if(!file){
+    alert("Foto wajib!");
+    return;
+  }
+
+  if(!name.value.trim()){
+    alert("Nama wajib!");
+    return;
+  }
 
   let reader = new FileReader();
 
-  reader.onload=function(){
+  reader.onload = function(){
+
     db.push({
-      user:user.value||"user",
-      name:name.value,
-      link:link.value,
+      user:user.value.trim() || "user",
+      name:name.value.trim(),
+      link:link.value.trim() || "#",
       cat:category.value,
       img:reader.result,
       like:0
     });
+
+    user.value="";
+    name.value="";
+    link.value="";
+    document.getElementById("img").value="";
 
     closeAdd();
   };
@@ -239,10 +259,11 @@ function addRocket(){
 
 /* MODAL */
 function openAdd(){
-  addModal.style.display="flex";
+  document.getElementById("addModal").style.display="flex";
 }
+
 function closeAdd(){
-  addModal.style.display="none";
+  document.getElementById("addModal").style.display="none";
 }
 
 /* SEARCH */
