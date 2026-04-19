@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SFS SHARE REAL</title>
+<title>SFS Android Share</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -16,21 +16,15 @@ body{
   color:white;
 }
 
+/* simple android style */
 header{
-  display:flex;
-  justify-content:space-between;
   padding:12px;
   background:#1e293b;
+  text-align:center;
+  font-weight:bold;
 }
 
-.icon{
-  font-size:22px;
-  cursor:pointer;
-}
-
-.container{
-  padding:12px;
-}
+.container{padding:12px}
 
 input,select{
   width:100%;
@@ -38,14 +32,13 @@ input,select{
   margin:6px 0;
   border:none;
   border-radius:8px;
-  font-size:16px;
 }
 
 .card{
   background:#065f46;
   padding:12px;
-  border-radius:12px;
   margin-top:12px;
+  border-radius:12px;
 }
 
 .card img{
@@ -53,25 +46,21 @@ input,select{
   border-radius:10px;
 }
 
-.user{
-  font-size:13px;
-  color:#ccc;
-}
-
 button{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin-top:6px;
   border:none;
   border-radius:8px;
-  font-size:15px;
+  font-size:16px;
   cursor:pointer;
 }
 
-.open{background:#22c55e}
-.delete{background:#ef4444}
+.open{
+  background:#22c55e;
+}
 
-/* MODAL */
+/* modal */
 .modal{
   display:none;
   position:fixed;
@@ -87,19 +76,13 @@ button{
   padding:15px;
   border-radius:12px;
   width:95%;
-  max-height:90%;
-  overflow:auto;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <div onclick="openAdd()">＋</div>
-  <div>🚀 SFS SHARE</div>
-  <div onclick="openAdmin()">⚙️</div>
-</header>
+<header>🚀 SFS SHARE ANDROID</header>
 
 <div class="container">
   <input id="search" placeholder="Cari...">
@@ -109,37 +92,27 @@ button{
 <!-- ADD -->
 <div class="modal" id="addModal">
   <div class="box">
-    <h3>Tambah Rocket</h3>
+    <h3>Tambah</h3>
 
     <input id="user" placeholder="User">
-    <input id="name" placeholder="Nama roket (wajib)">
+    <input id="name" placeholder="Nama roket">
     <input id="link" placeholder="Link">
-
+    
     <select id="category">
       <option>Rocket</option>
       <option>Tank</option>
       <option>Ship</option>
     </select>
 
-    <input type="file" id="img" accept="image/*">
+    <input type="file" id="img">
 
     <button onclick="addRocket()" class="open">Simpan</button>
     <button onclick="closeAdd()">Tutup</button>
   </div>
 </div>
 
-<!-- ADMIN -->
-<div class="modal" id="adminModal">
-  <div class="box">
-    <h3>Admin Panel</h3>
-    <div id="adminList"></div>
-    <button onclick="closeAdmin()">Tutup</button>
-  </div>
-</div>
-
 <script>
 
-/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyDopQmdMEUdt-UFtbYZh76Y-2Wf17yL4T4",
   authDomain: "sfs-share-37061.firebaseapp.com",
@@ -158,13 +131,6 @@ db.on("value", snap=>{
   render();
 });
 
-/* FIX ELEMENT (ANTI BUG NAMA) */
-const user = document.getElementById("user");
-const name = document.getElementById("name");
-const link = document.getElementById("link");
-const img = document.getElementById("img");
-const category = document.getElementById("category");
-
 /* RENDER */
 function render(){
   let arr = Object.entries(data);
@@ -174,107 +140,57 @@ function render(){
     <div class="card">
       <img src="${r.img}">
       <h3>${r.name}</h3>
-      <div class="user">by ${r.user} | ${r.cat}</div>
+      <div>by ${r.user} | ${r.cat}</div>
 
-      <button class="open" onclick="window.open('${r.link}')">Buka</button>
+      <!-- TOMBOL BUKA = AUTO LIKE +1 -->
+      <button class="open" onclick="openRocket('${k}','${r.link}')">
+        BUKA
+      </button>
 
-      <button onclick="like('${k}')">❤️ ${r.like||0}</button>
-
-      <input id="c${k}" placeholder="Komentar">
-      <button onclick="comment('${k}')">Kirim</button>
-
-      <div>${(r.comments||[]).map(c=>"💬 "+c+"<br>").join("")}</div>
+      <div>❤️ ${r.like||0}</div>
     </div>
   `).join("");
 }
 
-/* ADD (FIX TOTAL BUG NAME) */
+/* BUKA = LIKE +1 */
+function openRocket(id,link){
+  let item = data[id];
+
+  db.child(id).update({
+    like:(item.like||0)+1
+  });
+
+  window.open(link,"_blank");
+}
+
+/* ADD */
 function addRocket(){
   let file = img.files[0];
-
-  if(!file){
-    alert("Foto wajib!");
-    return;
-  }
-
-  if(!name.value || name.value.trim() === ""){
-    alert("Nama roket wajib!");
-    return;
-  }
+  if(!file) return alert("Foto wajib!");
+  if(!name.value.trim()) return alert("Nama wajib!");
 
   let reader = new FileReader();
 
   reader.onload = function(){
     db.push({
-      user: user.value || "user",
-      name: name.value.trim(),
-      link: link.value || "#",
-      cat: category.value,
-      img: reader.result,
-      like:0,
-      comments:[]
+      user:user.value||"user",
+      name:name.value.trim(),
+      link:link.value||"#",
+      cat:category.value,
+      img:reader.result,
+      like:0
     });
 
     closeAdd();
-
-    user.value="";
-    name.value="";
-    link.value="";
   };
 
   reader.readAsDataURL(file);
 }
 
-/* LIKE */
-function like(id){
-  let item = data[id];
-  db.child(id).update({
-    like:(item.like||0)+1
-  });
+/* MODAL */
+function closeAdd(){
+  addModal.style.display="none";
 }
-
-/* COMMENT */
-function comment(id){
-  let input = document.getElementById("c"+id);
-  if(!input.value.trim()) return;
-
-  let item = data[id];
-  let arr = item.comments||[];
-
-  arr.push(input.value);
-
-  db.child(id).update({
-    comments:arr
-  });
-
-  input.value="";
-}
-
-/* ADMIN */
-function openAdmin(){
-  let pw = prompt("Password:");
-  if(pw === "$119617555285jjhcwif9961"){
-    adminModal.style.display="flex";
-    loadAdmin();
-  }else{
-    alert("Salah");
-  }
-}
-
-function loadAdmin(){
-  let arr = Object.entries(data);
-
-  adminList.innerHTML = arr.map(([k,r])=>`
-    <div class="card">
-      <h3>${r.name}</h3>
-      <button class="delete" onclick="db.child('${k}').remove()">Hapus</button>
-    </div>
-  `).join("");
-}
-
-function closeAdd(){addModal.style.display="none";}
-function openAdd(){addModal.style.display="flex";}
-function closeAdmin(){adminModal.style.display="none";}
 
 </script>
 
