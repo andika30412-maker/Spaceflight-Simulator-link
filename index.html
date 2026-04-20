@@ -2,198 +2,370 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SFS SHARE ULTRA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>SFS SHARE · GALLERY ELITE</title>
 
+<!-- Firebase SDKs (Compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
+<!-- Google Fonts & Font Awesome Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#0f172a,#020617);
-  color:white;
-  overflow-x:hidden;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* HEADER */
-header{
-  display:flex;
-  justify-content:space-between;
-  padding:12px;
-  background:#1e293b;
-  animation:slideDown .5s ease;
+body {
+  background: linear-gradient(145deg, #0B1120 0%, #0F172A 100%);
+  font-family: 'Inter', sans-serif;
+  color: #F1F5F9;
+  padding-bottom: 80px;
 }
 
-@keyframes slideDown{
-  from{transform:translateY(-100%);opacity:0}
-  to{transform:translateY(0);opacity:1}
+/* Custom scroll */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #1E293B;
+}
+::-webkit-scrollbar-thumb {
+  background: #22C55E;
+  border-radius: 10px;
 }
 
-/* SEARCH */
-#search{
-  width:90%;
-  margin:10px;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  animation:fade .5s;
+/* Header premium */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  font-weight: 600;
+  letter-spacing: -0.2px;
 }
 
-/* CARD */
-.card{
-  background:linear-gradient(135deg,#065f46,#064e3b);
-  margin:10px;
-  padding:12px;
-  border-radius:14px;
-  animation:pop .4s;
-  transition:.3s;
+header div:first-child, header div:last-child {
+  background: rgba(255,255,255,0.08);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 40px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 20px;
 }
 
-.card:hover{
-  transform:scale(1.02);
-  box-shadow:0 0 15px rgba(34,197,94,0.4);
+header div:first-child:hover, header div:last-child:hover {
+  background: #22C55E;
+  color: #0F172A;
+  transform: scale(0.96);
 }
 
-@keyframes pop{
-  from{opacity:0;transform:translateY(20px) scale(.9)}
-  to{opacity:1;transform:translateY(0) scale(1)}
+header div:nth-child(2) {
+  font-size: 1.4rem;
+  background: linear-gradient(135deg, #FFFFFF, #22C55E);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
 }
 
-.card img{
-  width:100%;
-  border-radius:10px;
-  transition:.3s;
+/* Search bar */
+.search-wrapper {
+  padding: 16px 16px 8px 16px;
 }
 
-.card img:hover{
-  transform:scale(1.05);
+#search {
+  width: 100%;
+  padding: 14px 18px;
+  background: #1E293B;
+  border: 1px solid #334155;
+  border-radius: 44px;
+  color: white;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+  backdrop-filter: blur(4px);
 }
 
-/* BUTTON */
-button{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  transition:.2s;
+#search:focus {
+  border-color: #22C55E;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
 }
 
-button:hover{
-  transform:scale(1.05);
+/* Grid Card Modern */
+.grid-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+  padding: 12px 16px;
 }
 
-.open{background:#22c55e}
-.delete{background:#ef4444}
-
-/* FLOAT BUTTON */
-#addBtn{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:65px;
-  height:65px;
-  border-radius:50%;
-  font-size:30px;
-  background:#22c55e;
-  border:none;
-  animation:pulse 1.5s infinite;
+.card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(4px);
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
-@keyframes pulse{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.1)}
-  100%{transform:scale(1)}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 30px -12px rgba(0,0,0,0.4);
+  border-color: rgba(34,197,94,0.4);
 }
 
-/* FLOAT +1 */
-.float{
-  position:absolute;
-  color:#22c55e;
-  font-weight:bold;
-  animation:floatUp 1s forwards;
+.card-img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  background: #0F172A;
+  transition: transform 0.3s ease;
 }
 
-@keyframes floatUp{
-  0%{opacity:1;transform:translateY(0)}
-  100%{opacity:0;transform:translateY(-120px)}
+.card-content {
+  padding: 18px 16px 20px;
 }
 
-/* MODAL */
-.modal{
-  display:none;
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.7);
-  justify-content:center;
-  align-items:center;
-  animation:fadeBg .3s;
+.card h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-@keyframes fadeBg{
-  from{opacity:0}
-  to{opacity:1}
+.badge-cat {
+  display: inline-block;
+  background: #22C55E20;
+  color: #86EFAC;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 40px;
+  letter-spacing: normal;
+  backdrop-filter: blur(2px);
 }
 
-.box{
-  background:#020617;
-  padding:15px;
-  border-radius:14px;
-  width:90%;
-  animation:zoom .3s;
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0 16px;
+  font-size: 0.8rem;
+  color: #94A3B8;
 }
 
-@keyframes zoom{
-  from{transform:scale(.7);opacity:0}
-  to{transform:scale(1);opacity:1}
+.btn-open {
+  background: linear-gradient(95deg, #22C55E, #16A34A);
+  border: none;
+  padding: 12px;
+  border-radius: 40px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  width: 100%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: 'Inter', sans-serif;
 }
 
-input,select{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:8px;
+.btn-open:hover {
+  background: #15803D;
+  transform: scale(0.98);
 }
 
-/* LOGIN SHAKE */
-.shake{animation:shake .3s}
-@keyframes shake{
-  0%{transform:translateX(0)}
-  25%{transform:translateX(-10px)}
-  50%{transform:translateX(10px)}
-  100%{transform:translateX(0)}
+/* FAB */
+#addBtn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 58px;
+  height: 58px;
+  border-radius: 30px;
+  background: #22C55E;
+  border: none;
+  font-size: 28px;
+  color: #0F172A;
+  box-shadow: 0 6px 14px rgba(34,197,94,0.4);
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+#addBtn:hover {
+  transform: scale(1.05);
+  background: #16A34A;
+}
+
+/* MODAL GLOBAL */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.box {
+  background: #111827;
+  border-radius: 32px;
+  width: 90%;
+  max-width: 460px;
+  padding: 24px 22px;
+  border: 1px solid #2D3A5E;
+  box-shadow: 0 25px 40px black;
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.box h3 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  background: linear-gradient(120deg, #E2E8F0, #22C55E);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+input, select, .file-label {
+  width: 100%;
+  padding: 12px 16px;
+  margin: 8px 0 14px;
+  background: #1E293B;
+  border: 1px solid #334155;
+  border-radius: 28px;
+  color: white;
+  font-size: 0.9rem;
+  outline: none;
+  transition: 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+input:focus, select:focus {
+  border-color: #22C55E;
+}
+
+button {
+  border: none;
+  border-radius: 40px;
+  padding: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: 8px;
+}
+
+.btn-primary {
+  background: #22C55E;
+  color: #0F172A;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.btn-secondary {
+  background: #334155;
+  color: #F1F5F9;
+  width: 100%;
+}
+
+.btn-danger {
+  background: #DC2626;
+  color: white;
+}
+
+.admin-card {
+  background: #0F172A;
+  border-radius: 28px;
+  padding: 18px;
+  margin-bottom: 20px;
+  border-left: 4px solid #22C55E;
+}
+
+.admin-card input, .admin-card select {
+  background: #020617;
+  margin: 6px 0;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.admin-actions button {
+  flex: 1;
+}
+
+/* empty state */
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: #94A3B8;
+  font-size: 1rem;
+}
+
+/* footer space */
 </style>
 </head>
-
 <body>
 
 <header>
-  <div onclick="openAdmin()">⋮</div>
-  <div>SFS SHARE ULTRA</div>
-  <div onclick="openAdd()">＋</div>
+  <div><i class="fas fa-shield-alt"></i></div>
+  <div>SFS SHARE</div>
+  <div><i class="fas fa-plus-circle"></i></div>
 </header>
 
-<input id="search" placeholder="Cari...">
-<div id="list"></div>
+<div class="search-wrapper">
+  <input type="text" id="search" placeholder="🔍 Cari item, user, atau kategori...">
+</div>
 
-<button id="addBtn" onclick="openAdd()">+</button>
+<div id="list" class="grid-list"></div>
 
-<!-- ADD -->
+<button id="addBtn"><i class="fas fa-plus" style="font-size:26px;"></i></button>
+
+<!-- MODAL TAMBAH ITEM (PREMIUM) -->
 <div class="modal" id="addModal">
   <div class="box">
-
-    <h3>Tambah Item</h3>
-
-    <input id="user" placeholder="Nama user">
-    <input id="name" placeholder="Nama item">
-    <input id="link" placeholder="Link">
-
+    <h3><i class="fas fa-cloud-upload-alt"></i> Upload Koleksi</h3>
+    <input id="user" placeholder="Nama kamu / Username" value="Explorer">
+    <input id="name" placeholder="Nama item *">
+    <input id="link" placeholder="Link (URL, atau #)">
     <select id="cat">
       <option>Rocket</option>
       <option>Tank</option>
@@ -201,40 +373,35 @@ input,select{
       <option>Satellite</option>
       <option>Kapal Bawah Laut</option>
     </select>
-
-    <input type="file" id="img" accept="image/*">
-
-    <button class="open" onclick="addData()">SIMPAN</button>
-    <button onclick="closeAdd()">TUTUP</button>
-
+    <div style="margin: 12px 0 8px; font-size:0.85rem; color:#94A3B8;"><i class="fas fa-image"></i> Pilih gambar (wajib)</div>
+    <input type="file" id="img" accept="image/*" style="padding:8px;">
+    <button class="btn-primary" onclick="addData()"><i class="fas fa-save"></i> SIMPAN</button>
+    <button class="btn-secondary" onclick="closeAdd()"><i class="fas fa-times"></i> TUTUP</button>
   </div>
 </div>
 
-<!-- LOGIN -->
+<!-- MODAL LOGIN ADMIN -->
 <div class="modal" id="loginModal">
-  <div class="box" id="loginBox">
-
-    <h3>ADMIN LOGIN</h3>
-
-    <input type="password" id="pass">
-
-    <button class="open" onclick="login()">LOGIN</button>
-
+  <div class="box">
+    <h3><i class="fas fa-lock"></i> Admin Access</h3>
+    <input type="password" id="pass" placeholder="Kode rahasia">
+    <button class="btn-primary" onclick="login()"><i class="fas fa-key"></i> LOGIN</button>
+    <button class="btn-secondary" onclick="closeLogin()">Batal</button>
   </div>
 </div>
 
-<!-- ADMIN -->
+<!-- MODAL ADMIN PANEL - FULL ENHANCED -->
 <div class="modal" id="adminModal">
-  <div class="box">
-    <h3>ADMIN PANEL</h3>
+  <div class="box" style="max-width: 650px; max-height: 85vh; overflow-y: auto;">
+    <h3><i class="fas fa-crown"></i> Admin Dashboard</h3>
+    <p style="margin-bottom: 20px; font-size: 0.8rem; color: #CBD5E1;">Kelola semua item, edit gambar, nama, link & kategori</p>
     <div id="adminList"></div>
-    <button onclick="closeAdmin()">TUTUP</button>
+    <button class="btn-secondary" onclick="closeAdmin()" style="margin-top: 20px;"><i class="fas fa-arrow-left"></i> Tutup Panel</button>
   </div>
 </div>
 
 <script>
-
-/* FIREBASE */
+/* ---------- FIREBASE ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyDopQmdMEUdt-UFtbYZh76Y-2Wf17yL4T4",
   authDomain: "sfs-share-37061.firebaseapp.com",
@@ -245,143 +412,254 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database().ref("items");
 
-let data = {};
-let cooldown = {};
+let globalItems = {};  // store items
 
-/* REALTIME */
-db.on("value", s=>{
-  data = s.val() || {};
-  render();
+/* ----- REALTIME RENDER & SEARCH ----- */
+db.on("value", (snapshot) => {
+  globalItems = snapshot.val() || {};
+  filterAndRender();
 });
 
-/* USER RENDER */
-function render(){
-  list.innerHTML = Object.entries(data).map(([k,r])=>`
-    <div class="card">
-      <img src="${r.img}">
-      <h3>${r.name}</h3>
-      <div>by ${r.user} | ${r.cat}</div>
+function filterAndRender() {
+  const keyword = document.getElementById("search").value.toLowerCase();
+  let filtered = Object.entries(globalItems);
+  if (keyword.trim() !== "") {
+    filtered = filtered.filter(([id, item]) => {
+      return (item.name && item.name.toLowerCase().includes(keyword)) ||
+             (item.user && item.user.toLowerCase().includes(keyword)) ||
+             (item.cat && item.cat.toLowerCase().includes(keyword));
+    });
+  }
+  renderGallery(filtered);
+}
 
-      <button class="open" onclick="openItem('${k}','${r.link}',event)">
-        BUKA
-      </button>
+function renderGallery(entriesArray) {
+  const container = document.getElementById("list");
+  if (!entriesArray.length) {
+    container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open" style="font-size: 3rem; opacity:0.5;"></i><p style="margin-top:12px;">Tidak ada item ditemukan</p></div>`;
+    return;
+  }
+  container.innerHTML = entriesArray.map(([id, r]) => `
+    <div class="card" data-id="${id}">
+      <img class="card-img" src="${r.img || 'https://placehold.co/400x200?text=No+Image'}" alt="${escapeHtml(r.name)}" loading="lazy">
+      <div class="card-content">
+        <h3>${escapeHtml(r.name || 'Tanpa Nama')} <span class="badge-cat">${escapeHtml(r.cat || 'Umum')}</span></h3>
+        <div class="meta">
+          <span><i class="fas fa-user-astronaut"></i> ${escapeHtml(r.user || 'user')}</span>
+          <span><i class="fas fa-tag"></i> ${escapeHtml(r.cat || 'Koleksi')}</span>
+        </div>
+        <button class="btn-open" onclick="window.open('${escapeHtml(r.link || '#')}','_blank')">
+          <i class="fas fa-external-link-alt"></i> BUKA ITEM
+        </button>
+      </div>
     </div>
   `).join("");
 }
 
-/* OPEN + LIKE + ANIM */
-function openItem(id,link,e){
-
-  if(cooldown[id] && Date.now()-cooldown[id]<1500) return;
-  cooldown[id]=Date.now();
-
-  let el=document.createElement("div");
-  el.className="float";
-  el.innerText="+1";
-  el.style.left=e.clientX+"px";
-  el.style.top=e.clientY+"px";
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),1000);
-
-  window.open(link,"_blank");
+// helper XSS protection
+function escapeHtml(str) {
+  if(!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if(m === '&') return '&amp;';
+    if(m === '<') return '&lt;';
+    if(m === '>') return '&gt;';
+    return m;
+  }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+    return c;
+  });
 }
 
-/* ADD */
-function addData(){
-  let file=img.files[0];
-  if(!file) return alert("Wajib gambar!");
-
-  let reader=new FileReader();
-
-  reader.onload=()=>{
+/* ----- ADD DATA (Gambar base64) ----- */
+function addData() {
+  const fileInput = document.getElementById("img");
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("⚠️ Wajib pilih gambar untuk diunggah!");
+    return;
+  }
+  const userName = document.getElementById("user").value.trim() || "User";
+  const itemName = document.getElementById("name").value.trim();
+  if (!itemName) {
+    alert("Nama item tidak boleh kosong!");
+    return;
+  }
+  const linkVal = document.getElementById("link").value.trim() || "#";
+  const category = document.getElementById("cat").value;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
     db.push({
-      user:user.value||"user",
-      name:name.value,
-      link:link.value||"#",
-      cat:cat.value,
-      img:reader.result
-    });
-    closeAdd();
+      user: userName,
+      name: itemName,
+      link: linkVal,
+      cat: category,
+      img: e.target.result
+    }).then(() => {
+      closeAdd();
+      document.getElementById("user").value = "Explorer";
+      document.getElementById("name").value = "";
+      document.getElementById("link").value = "";
+      document.getElementById("img").value = "";
+    }).catch(err => alert("Gagal simpan: "+err.message));
   };
-
+  reader.onerror = () => alert("Gagal membaca gambar");
   reader.readAsDataURL(file);
 }
 
-/* ADMIN OPEN */
-function openAdmin(){
-  loginModal.style.display="flex";
+/* ----- ADMIN PANEL FUNCTIONS (ENHANCED) ----- */
+function openAdmin() {
+  document.getElementById("loginModal").style.display = "flex";
 }
 
-/* LOGIN */
-function login(){
-  if(pass.value==="1113292627"){
-    loginModal.style.display="none";
-    adminModal.style.display="flex";
-    loadAdmin();
-  }else{
-    loginBox.classList.add("shake");
-    setTimeout(()=>loginBox.classList.remove("shake"),300);
+function closeLogin() {
+  document.getElementById("loginModal").style.display = "none";
+}
+
+function login() {
+  const passwordInput = document.getElementById("pass");
+  if (passwordInput.value === "1113292627") {
+    document.getElementById("loginModal").style.display = "none";
+    loadAdminPanelUI();
+    document.getElementById("adminModal").style.display = "flex";
+  } else {
+    alert("❌ Password salah! Akses ditolak.");
   }
+  passwordInput.value = "";
 }
 
-/* ADMIN LOAD FIX */
-function loadAdmin(){
-  adminList.innerHTML = Object.entries(data).map(([k,r])=>`
-    <div class="card">
-
-      <input id="n${k}" value="${r.name||''}">
-      <input id="l${k}" value="${r.link||''}">
-
-      <select id="c${k}">
-        <option ${r.cat==="Rocket"?"selected":""}>Rocket</option>
-        <option ${r.cat==="Tank"?"selected":""}>Tank</option>
-        <option ${r.cat==="Pesawat"?"selected":""}>Pesawat</option>
-        <option ${r.cat==="Satellite"?"selected":""}>Satellite</option>
-        <option ${r.cat==="Kapal Bawah Laut"?"selected":""}>Kapal Bawah Laut</option>
-      </select>
-
-      <input type="file" id="i${k}" accept="image/*">
-
-      <button onclick="save('${k}')">SIMPAN</button>
-      <button class="delete" onclick="db.child('${k}').remove()">HAPUS</button>
-
-    </div>
-  `).join("");
+// Load data ke admin panel dengan tampilan lebih rapi dan edit image preview
+function loadAdminPanelUI() {
+  const adminContainer = document.getElementById("adminList");
+  if (!globalItems || Object.keys(globalItems).length === 0) {
+    adminContainer.innerHTML = `<div style="padding:30px;text-align:center;">✨ Belum ada data ✨</div>`;
+    return;
+  }
+  
+  let html = '';
+  for (const [id, item] of Object.entries(globalItems)) {
+    html += `
+      <div class="admin-card" id="admin-card-${id}">
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+          <div style="width:48px; height:48px; border-radius:16px; overflow:hidden; background:#020617;">
+            <img src="${item.img || ''}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://placehold.co/48'">
+          </div>
+          <div><strong style="font-size:1rem;">ID: ${id.slice(0,6)}</strong></div>
+        </div>
+        
+        <label>📛 Nama Item</label>
+        <input type="text" id="admin-name-${id}" value="${escapeHtmlAttr(item.name || '')}" placeholder="Nama item">
+        
+        <label>🔗 Link</label>
+        <input type="text" id="admin-link-${id}" value="${escapeHtmlAttr(item.link || '')}" placeholder="https://...">
+        
+        <label>🏷️ Kategori</label>
+        <select id="admin-cat-${id}">
+          ${generateCatOptions(item.cat || 'Rocket')}
+        </select>
+        
+        <label>🖼️ Ganti Gambar (opsional)</label>
+        <input type="file" id="admin-img-${id}" accept="image/*" style="padding:8px;">
+        <div class="admin-actions">
+          <button class="btn-primary" onclick="updateItem('${id}')"><i class="fas fa-sync-alt"></i> Simpan</button>
+          <button class="btn-danger" onclick="deleteItemConfirm('${id}')"><i class="fas fa-trash-alt"></i> Hapus</button>
+        </div>
+      </div>
+    `;
+  }
+  adminContainer.innerHTML = html;
 }
 
-/* SAVE FIX TOTAL */
-function save(id){
+function generateCatOptions(selected) {
+  const cats = ["Rocket","Tank","Pesawat","Satellite","Kapal Bawah Laut"];
+  return cats.map(c => `<option value="${c}" ${selected === c ? 'selected' : ''}>${c}</option>`).join('');
+}
 
-  let file=document.getElementById("i"+id).files[0];
+function escapeHtmlAttr(str) {
+  if(!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
-  function update(img){
+// update item termasuk gambar
+function updateItem(id) {
+  const newName = document.getElementById(`admin-name-${id}`).value;
+  const newLink = document.getElementById(`admin-link-${id}`).value;
+  const newCat = document.getElementById(`admin-cat-${id}`).value;
+  const fileInput = document.getElementById(`admin-img-${id}`);
+  const file = fileInput.files[0];
+  
+  const currentItem = globalItems[id];
+  if (!currentItem) return alert("Item tidak ditemukan");
+  
+  function performUpdate(finalImgBase64) {
     db.child(id).update({
-      name:n(id).value,
-      link:l(id).value,
-      cat:c(id).value,
-      img:img||data[id].img
-    });
+      name: newName || "No Name",
+      link: newLink || "#",
+      cat: newCat,
+      img: finalImgBase64 !== undefined ? finalImgBase64 : currentItem.img
+    }).then(() => {
+      alert("✅ Item berhasil diperbarui!");
+      fileInput.value = ""; 
+    }).catch(err => alert("Gagal update: "+err.message));
   }
-
-  let n=x=>document.getElementById("n"+x);
-  let l=x=>document.getElementById("l"+x);
-  let c=x=>document.getElementById("c"+x);
-
-  if(file){
-    let r=new FileReader();
-    r.onload=()=>update(r.result);
-    r.readAsDataURL(file);
-  }else update(null);
-
-  alert("Saved ✔");
+  
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      performUpdate(e.target.result);
+    };
+    reader.onerror = () => alert("Gagal membaca gambar baru");
+    reader.readAsDataURL(file);
+  } else {
+    performUpdate(undefined);
+  }
 }
 
-/* MODALS */
-function openAdd(){addModal.style.display="flex";}
-function closeAdd(){addModal.style.display="none";}
-function closeAdmin(){adminModal.style.display="none";}
+function deleteItemConfirm(id) {
+  if (confirm("⚠️ Yakin hapus item ini secara permanen?")) {
+    db.child(id).remove().then(() => {
+      alert("Item dihapus.");
+    }).catch(e => alert("Gagal hapus: "+e.message));
+  }
+}
 
+/* ----- UTILITY MODAL ----- */
+function openAdd() {
+  document.getElementById("addModal").style.display = "flex";
+}
+function closeAdd() {
+  document.getElementById("addModal").style.display = "none";
+  document.getElementById("img").value = "";
+}
+function closeAdmin() {
+  document.getElementById("adminModal").style.display = "none";
+}
+
+// Search listener
+document.getElementById("search").addEventListener("input", () => {
+  filterAndRender();
+});
+
+// tombol header plus & floating plus sama2 openAdd
+document.querySelector("header div:last-child").onclick = openAdd;
+window.openAdd = openAdd;
+window.closeAdd = closeAdd;
+window.addData = addData;
+window.openAdmin = openAdmin;
+window.login = login;
+window.closeAdmin = closeAdmin;
+window.updateItem = updateItem;
+window.deleteItemConfirm = deleteItemConfirm;
+
+// close modal when clicking outside (opsional)
+window.onclick = function(e) {
+  const modals = document.querySelectorAll('.modal');
+  modals.forEach(modal => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+}
+
+// initial render
+filterAndRender();
 </script>
-
 </body>
 </html>
