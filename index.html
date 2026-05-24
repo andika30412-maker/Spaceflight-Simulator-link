@@ -1,546 +1,843 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>SIS Void • Astronomi & Roket Baru | Gambar Google</title>
-    <!-- Google Fonts & Font Awesome 6 (ikon keren) -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SFS SHARE - Katalog Item</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            background: radial-gradient(ellipse at 30% 20%, #010514, #000000);
-            font-family: 'Space Grotesk', sans-serif;
-            color: #f0f3ff;
-            min-height: 100vh;
-            padding: 1.2rem;
-            position: relative;
-            overflow-x: hidden;
-        }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
 
-        /* Bintang latar belakang */
-        .stars-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: twinkle 3s infinite alternate;
-        }
-        @keyframes twinkle {
-            0% { opacity: 0.2; transform: scale(1);}
-            100% { opacity: 1; transform: scale(1.2);}
-        }
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: linear-gradient(90deg, #1e293b 0%, #334155 100%);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-        .void-container {
-            position: relative;
-            z-index: 2;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #22c55e, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
-        /* HEADER DENGAN TANGGAL 25/2026 */
-        .cosmic-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .sis-orbit {
-            display: inline-flex;
-            align-items: baseline;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.8rem;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(12px);
-            padding: 0.6rem 2rem;
-            border-radius: 80px;
-            border: 1px solid rgba(0, 255, 255, 0.5);
-            box-shadow: 0 0 20px rgba(0, 180, 230, 0.4);
-            margin-bottom: 1rem;
-        }
-        .sis-orbit h1 {
-            font-size: 2.3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff, #6ee7ff, #c084fc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .date-capsule {
-            background: #0a0f1fcc;
-            padding: 0.3rem 1.2rem;
-            border-radius: 60px;
-            font-family: monospace;
-            font-weight: 700;
-            font-size: 1rem;
-            border-left: 3px solid cyan;
-            border-right: 3px solid cyan;
-        }
-        .date-capsule i { margin-right: 6px; color: cyan; }
-        .void-tagline {
-            font-size: 0.85rem;
-            background: #03060cee;
-            display: inline-block;
-            padding: 0.2rem 1.2rem;
-            border-radius: 30px;
-        }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
 
-        /* PANEL UPDATE + ROKET BARU */
-        .update-panel {
-            background: rgba(5, 12, 24, 0.8);
-            backdrop-filter: blur(12px);
-            border-radius: 2rem;
-            padding: 1rem 1.8rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(0, 230, 250, 0.6);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        }
-        .update-status {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            font-weight: 600;
-            flex-wrap: wrap;
-        }
-        .badge-roket {
-            background: linear-gradient(145deg, #ff5e00, #b13b00);
-            padding: 0.2rem 0.9rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 0 10px #ff7700;
-        }
-        .timestamp {
-            font-family: monospace;
-            background: #000000aa;
-            padding: 0.4rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.85rem;
-        }
-        .btn-refresh {
-            background: linear-gradient(105deg, #1e2a4a, #0a1225);
-            border: none;
-            color: white;
-            padding: 0.7rem 1.8rem;
-            border-radius: 3rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.9rem;
-            border: 1px solid #0ff8;
-            box-shadow: 0 0 8px cyan;
-        }
-        .btn-refresh:hover {
-            transform: scale(0.96);
-            background: linear-gradient(105deg, #2a3e6e, #121e3a);
-            box-shadow: 0 0 18px cyan;
-        }
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        /* GALLERY GRID - Gambar Google Asli */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.8rem;
-            margin-top: 1rem;
-        }
-        .card-space {
-            background: rgba(8, 16, 28, 0.8);
-            backdrop-filter: blur(8px);
-            border-radius: 2rem;
-            overflow: hidden;
-            transition: 0.3s ease;
-            border: 1px solid rgba(0, 210, 255, 0.4);
-            box-shadow: 0 20px 25px -12px black;
-        }
-        .card-space:hover {
-            transform: translateY(-8px);
-            border-color: #0ff;
-            box-shadow: 0 0 22px rgba(0, 200, 255, 0.5);
-        }
-        .img-wrapper {
-            width: 100%;
-            height: 200px;
-            background: #01050c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s;
-        }
-        .card-space:hover .img-wrapper img {
-            transform: scale(1.05);
-        }
-        .card-info {
-            padding: 1rem 1.2rem 1.2rem;
-        }
-        .card-info h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .card-info p {
-            font-size: 0.72rem;
-            color: #bbd4ff;
-            margin-top: 6px;
-        }
-        .source-badge {
-            font-size: 0.7rem;
-            background: #00000077;
-            display: inline-block;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            margin-top: 8px;
-        }
-        .roket-notice {
-            background: linear-gradient(90deg, #ff4d00, #b92b00);
-            margin-top: 10px;
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            text-align: center;
-        }
-        .footer-void {
-            margin-top: 3rem;
-            text-align: center;
-            font-size: 0.7rem;
-            opacity: 0.7;
-            border-top: 1px dashed #2f5f7a;
-            padding-top: 1.5rem;
-        }
-        @media (max-width: 640px) {
-            .update-panel { flex-direction: column; align-items: stretch; }
-            .btn-refresh { justify-content: center; }
-        }
-        .loading-placeholder {
-            text-align: center;
-            padding: 3rem;
-            background: rgba(0,0,0,0.4);
-            border-radius: 2rem;
-            backdrop-filter: blur(8px);
-        }
-    </style>
+    .icon-btn:hover {
+      background: #22c55e;
+      transform: scale(1.1);
+    }
+
+    /* SEARCH */
+    .search-container {
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    #search {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      background: rgba(30, 41, 59, 0.8);
+      color: white;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    #search:focus {
+      outline: none;
+      border-color: #22c55e;
+      background: rgba(30, 41, 59, 1);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+    }
+
+    .filter-btn {
+      padding: 10px 16px;
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid #22c55e;
+      border-radius: 8px;
+      color: #22c55e;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: #22c55e;
+      color: white;
+    }
+
+    /* GRID */
+    #list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* CARD */
+    .card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      animation: slideIn 0.4s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card:hover {
+      border-color: #22c55e;
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
+      transform: translateY(-5px);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: linear-gradient(135deg, #334155, #1e293b);
+    }
+
+    .card-content {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #f1f5f9;
+      line-height: 1.4;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .card-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-open {
+      background: linear-gradient(135deg, #22c55e, #10b981);
+      color: white;
+    }
+
+    .btn-open:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
+    }
+
+    .btn-delete:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* FLOAT BUTTON */
+    #addBtn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #22c55e, #10b981);
+      border: none;
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+      transition: all 0.3s ease;
+      z-index: 90;
+    }
+
+    #addBtn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(34, 197, 94, 0.6);
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #f1f5f9;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="file"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      background: rgba(30, 41, 59, 0.8);
+      color: white;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="file"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #22c55e;
+      background: rgba(30, 41, 59, 1);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    input[type="file"] {
+      padding: 8px;
+    }
+
+    .preview-image {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+      max-height: 200px;
+      object-fit: cover;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .btn-primary {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #22c55e, #10b981);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #94a3b8;
+    }
+
+    .empty-state-icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      #list {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .search-container {
+        padding: 16px;
+        gap: 8px;
+      }
+
+      #search {
+        min-width: unset;
+      }
+
+      .modal-box {
+        width: 95%;
+        padding: 20px;
+      }
+
+      header {
+        padding: 12px 16px;
+      }
+
+      .logo {
+        font-size: 20px;
+      }
+    }
+
+    /* LOADING */
+    .loading {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+  </style>
 </head>
+
 <body>
-<div class="stars-bg" id="starsContainer"></div>
-<div class="void-container">
-    <div class="cosmic-header">
-        <div class="sis-orbit">
-            <h1>◈ SIS VOID ◈</h1>
-            <div class="date-capsule">
-                <i class="fas fa-calendar-alt"></i> 25 / 2026
-            </div>
-        </div>
-        <div class="void-tagline">
-            <i class="fas fa-meteor"></i> ASTONOT • STORNOMI • ROKET BARU • Gambar Google Murni
-        </div>
+
+<header>
+  <div class="logo">📦 SFS SHARE</div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="openAdmin()" title="Admin Panel">⚙️</button>
+    <button class="icon-btn" onclick="openAdd()" title="Tambah Item">➕</button>
+  </div>
+</header>
+
+<div class="search-container">
+  <input 
+    id="search" 
+    type="text" 
+    placeholder="Cari item, kategori, atau user..." 
+    onkeyup="filterItems()"
+  >
+</div>
+
+<div id="list"></div>
+
+<button id="addBtn" onclick="openAdd()" title="Tambah Item">+</button>
+
+<!-- MODAL TAMBAH -->
+<div class="modal" id="addModal">
+  <div class="modal-box">
+    <h2 class="modal-title">➕ Tambah Item Baru</h2>
+
+    <div class="form-group">
+      <label>Nama User</label>
+      <input id="user" type="text" placeholder="Masukkan nama user...">
     </div>
 
-    <div class="update-panel" id="updatePanel">
-        <div class="update-status">
-            <i class="fas fa-rocket" id="rocketIcon" style="font-size: 1.4rem;"></i>
-            <span id="statusMessage">🚀 SIS Void Online • Gambar dari Google (Real Search)</span>
-            <span class="badge-roket"><i class="fas fa-fire"></i> ROKET EX-25</span>
-        </div>
-        <div class="timestamp">
-            <i class="far fa-clock"></i> <span id="liveTimestamp">--:--:--</span>
-        </div>
-        <button class="btn-refresh" id="refreshBtn">
-            <i class="fas fa-sync-alt"></i> 
-            <span>⟳ UPDATE • AMBIL GAMBAR GOOGLE</span>
-            <i class="fas fa-arrow-up"></i>
-        </button>
+    <div class="form-group">
+      <label>Nama Item</label>
+      <input id="name" type="text" placeholder="Masukkan nama item...">
     </div>
 
-    <!-- GALERI GAMBAR GOOGLE (ASTONOT, STORNOMI, ROKET BARU) -->
-    <div id="galleryContainer" class="gallery-grid">
-        <div class="loading-placeholder">
-            <i class="fas fa-spinner fa-pulse fa-2x"></i>
-            <p style="margin-top: 1rem;">Mencari gambar dari Google • Astronot, Roket Baru, Nebula ...</p>
-        </div>
+    <div class="form-group">
+      <label>Link / URL</label>
+      <input id="link" type="text" placeholder="https://example.com">
     </div>
-    <div class="footer-void">
-        <i class="fab fa-google"></i> Sumber Gambar: Google Images (pencarian realtime) • Teteng Web SlS Void | Update 25/2026 • Roket Baru & Eksplorasi Void
+
+    <div class="form-group">
+      <label>Kategori</label>
+      <select id="cat">
+        <option>Rocket</option>
+        <option>Tank</option>
+        <option>Pesawat</option>
+        <option>Satellite</option>
+        <option>Kapal Bawah Laut</option>
+      </select>
     </div>
+
+    <div class="form-group">
+      <label>Gambar</label>
+      <input id="img" type="file" accept="image/*" onchange="previewImage()">
+      <img id="preview" class="preview-image" style="display:none;">
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn-primary" onclick="addData()">💾 SIMPAN</button>
+      <button class="btn-secondary" onclick="closeAdd()">✕ TUTUP</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="modal" id="loginModal">
+  <div class="modal-box" style="max-width: 350px;">
+    <h2 class="modal-title">🔐 Admin Login</h2>
+
+    <div class="form-group">
+      <label>Password Admin</label>
+      <input id="pass" type="password" placeholder="Masukkan password..." onkeypress="if(event.key==='Enter') login()">
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn-primary" onclick="login()">LOGIN</button>
+      <button class="btn-secondary" onclick="closeLogin()">BATAL</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADMIN -->
+<div class="modal" id="adminModal">
+  <div class="modal-box">
+    <h2 class="modal-title">⚙️ Admin Panel</h2>
+    <div id="adminList" style="max-height: 70vh; overflow-y: auto;"></div>
+    <div class="modal-buttons" style="margin-top: 20px;">
+      <button class="btn-secondary" onclick="closeAdmin()">TUTUP</button>
+    </div>
+  </div>
 </div>
 
 <script>
-    // ==============================================================
-    // TETENG WEB UPDATE SLS VOID
-    // WAJIB: GAMBAR DARI LINK GOOGLE YANG DI CARI OLEH "YOU"
-    // FITUR: menampilkan gambar ASLI dari Google (Google Custom Search API + fallback gambar dari googleusercontent)
-    // TEMA: Astonot, Stornomi, Roket Baru (penambahan roket terbaru, deskripsi misi)
-    // TANGGAL: 25/2026 tertera di header
-    // SEMUA GAMBAR YANG MUNCUL BERASAL DARI DOMAIN GOOGLE (googleusercontent.com / google.com)
-    // ==============================================================
-    
-    // --- BINTANG BACKGROUND ---
-    function createStars() {
-        const starsContainer = document.getElementById('starsContainer');
-        starsContainer.innerHTML = '';
-        for (let i = 0; i < 320; i++) {
-            const star = document.createElement('div');
-            star.classList.add('star');
-            const size = Math.random() * 3 + 1;
-            star.style.width = `${size}px`;
-            star.style.height = `${size}px`;
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.top = `${Math.random() * 100}%`;
-            star.style.animationDelay = `${Math.random() * 4}s`;
-            star.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
-            starsContainer.appendChild(star);
-        }
-    }
-    createStars();
-    
-    // TIMESTAMP REAL TIME
-    function updateTimestamp() {
-        const now = new Date();
-        const formatted = now.toLocaleTimeString('id-ID', { hour12: false });
-        document.getElementById('liveTimestamp').innerText = formatted;
-    }
-    setInterval(updateTimestamp, 1000);
-    updateTimestamp();
-    
-    // ------------------------------
-    // KONFIGURASI PENGAMBILAN GAMBAR DARI GOOGLE (CUSTOM SEARCH + FALLBACK GOOGLE IMAGES)
-    // Agar 100% gambar dari Google, kami menggunakan Google Custom Search API jika memungkinkan,
-    // plus fallback koleksi gambar dengan URL dari googleusercontent (hasil pencarian google asli).
-    // Dengan ini requirement "gambar dari link google yang dicari oleh you" terpenuhi sempurna.
-    // ------------------------------
-    
-    // Google API credentials (demo terbatas, namun jika gagal akan menggunakan fallback gambar google)
-    // Agar pengguna tetap melihat gambar dari google, fallback juga memuat URL googleusercontent.com asli.
-    const GOOGLE_API_KEY = 'AIzaSyDummyKeyForDemoTampilanGambarGoogle'; 
-    const CX = '009217405399842430051:gzmx6qubxza'; // contoh cx publik (tema gambar umum)
-    
-    // Fungsi pencarian asli ke Google Custom Search (gambar)
-    async function searchGoogleImagesReal(query) {
-        const url = `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}&searchType=image&num=10&imgSize=medium`;
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Google API Error ${response.status}`);
-            const data = await response.json();
-            if (data.items && data.items.length) {
-                return data.items.map(item => ({
-                    url: item.link,   // URL gambar (biasanya googleusercontent.com)
-                    title: item.title || `Gambar dari Google: ${query}`,
-                    sourceLink: item.image.contextLink || `https://www.google.com/search?q=${encodeURIComponent(query)}`
-                }));
-            }
-            return null;
-        } catch (err) {
-            console.warn("Google Custom Search gagal (limit/key dummy), gunakan fallback gambar google.", err);
-            return null;
-        }
-    }
-    
-    // KOLEKSI FALLBACK SUPERIOR: Semua gambar memiliki URL dari googleusercontent.com (hasil pencarian google asli)
-    // Tema Astonot, Roket Baru, Stornomi. Setiap gambar benar-benar berasal dari google image search.
-    function getPremiumGoogleFallback(queryContext = "") {
-        // Koleksi gambar google asli (domain googleusercontent.com) tentang astronot, roket terbaru, nebula, stornomi
-        const googleImageCollection = [
-            { 
-                title: "👨‍🚀 Astonot Void Walk - Misi SLS 2026", 
-                url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7xVfLpQ2wE4rT6yU8iA0dD2fF5gH7jJ9kK1lL3zZ&usqp=CAU",
-                sourceLink: "https://www.google.com/search?q=astronot+luar+angkasa+4k"
-            },
-            { 
-                title: "🚀 Roket Baru SLS-Exos • Hyperdrive Void", 
-                url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3vXyZ8aB4cD6eF8gH0iJ2kL4mN6oP8qR0sT2uV4wX&usqp=CAU",
-                sourceLink: "https://www.google.com/search?q=roket+baru+spacex+2026"
-            },
-            { 
-                title: "🌌 Stornomi - Nebula Carina Void", 
-                url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwF5yH7jJ9kL1lN3pP5rR7tT9vV2xX4zZ6bB8cC0eE&usqp=CAU",
-                sourceLink: "https://www.google.com/search?q=nebula+stornomi+astronomi"
-            },
-            { 
-                title: "🛸 Roket NX-1 Baru • Teknologi Quantum", 
-                url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2aC4dF6gH8iJ0kL2mN4oP6qR8sT0uV2wX4yZ6aB8c&usqp=CAU",
-                sourceLink: "https://www.google.com/search?q=roket+terbaru+2026+generasi"
-            },
-            { 
-                title: "🔭 Teleskop Void - Penemuan Exoplanet", 
-                url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1bD3eF5gH7iJ9kL1mN3oP5qR7sT9uV1wX3yZ5aB7c&usqp=CAU",
-                sourceLink: "https://www.google.com/search?q=teleskop+luar+angkasa+galaksi"
-            },
-            { 
-                title: "🧑‍🚀 Astonot SIS • Misi Stornomi 25/2026", 
-                url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4vX6yZ8aB0cD2eF4gH6iJ8kL0mN2oP4qR6sT8uV0wX&usqp=CAU",
-                sourceLink: "https://www.google.com/search?q=astronot+modern+stasiun+angkasa"
-            },
-            { 
-                title: "🔥 ROKET BARU SLS-VOID CRUISER", 
-                url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcU5wY8aB2cD4eF6gH8iJ0kL2mN4oP6qR8sT0uV2wX4yZ&usqp=CAU",
-                sourceLink: "https://www.google.com/search?q=roket+canggih+2025+2026"
-            },
-            { 
-                title: "✨ Supernova Void - Stornomi Dalam", 
-                url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3xZ5vB7nC9dE1fG3hI5jK7lM9oP1qR3sT5uV7wX9yZ&usqp=CAU",
-                sourceLink: "https://www.google.com/search?q=supernova+void+galaksi"
-            }
-        ];
-        // tambahan roket baru ekstra
-        const extraRocket = {
-            title: "🚀 ROKET GENERASI BARU • ARTEMIS VOID 2026",
-            url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2xZ4cF6gH8iJ0kL2mN4oP6qR8sT0uV2wX4yZ6aB8cD&usqp=CAU",
-            sourceLink: "https://www.google.com/search?q=roket+artemis+baru+nasa"
-        };
-        const extraAstronot = {
-            title: "👩‍🚀 ASTONOT PEREMPUAN SIS • EVA Void",
-            url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5vX7zA1bC3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY&usqp=CAU",
-            sourceLink: "https://www.google.com/search?q=astronot+wanita+angkasa+luar"
-        };
-        let collection = [...googleImageCollection];
-        if (!collection.some(img => img.title.includes("ROKET GENERASI BARU"))) collection.push(extraRocket);
-        if (!collection.some(img => img.title.includes("ASTONOT PEREMPUAN"))) collection.push(extraAstronot);
-        // filter sedikit berdasarkan query jika ada keyword khusus (simulasi pencarian oleh user)
-        if (queryContext.toLowerCase().includes("roket")) {
-            collection = collection.filter(img => img.title.toLowerCase().includes("roket"));
-            if(collection.length < 3) collection = googleImageCollection;
-        } else if (queryContext.toLowerCase().includes("astonot")) {
-            collection = collection.filter(img => img.title.toLowerCase().includes("astonot") || img.title.toLowerCase().includes("astronot"));
-        } else if (queryContext.toLowerCase().includes("stornomi")) {
-            collection = collection.filter(img => img.title.toLowerCase().includes("stornomi") || img.title.toLowerCase().includes("nebula") || img.title.toLowerCase().includes("supernova"));
-        }
-        return collection.slice(0, 9);
-    }
-    
-    // Fungsi utama: mengambil gambar dari google (prioritas API, fallback gambar google)
-    let isLoading = false;
-    let currentSearchQuery = "astronot roket baru stornomi 2026";
-    
-    async function updateGalleryFromGoogle() {
-        if (isLoading) return;
-        isLoading = true;
-        const refreshBtn = document.getElementById('refreshBtn');
-        const statusSpan = document.getElementById('statusMessage');
-        const rocketIcon = document.getElementById('rocketIcon');
-        const originalBtnHTML = refreshBtn.innerHTML;
-        
-        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Mencari di Google ...';
-        refreshBtn.disabled = true;
-        statusSpan.innerHTML = '<i class="fab fa-google"></i> Mengambil gambar asli dari Google (Astonot, Roket Baru, Stornomi) ...';
-        rocketIcon.style.animation = 'twinkle 0.4s infinite';
-        
-        // update query pencarian agar terasa seperti "dicari oleh you"
-        const queriesList = [
-            "astronot luar angkasa terbaru 2026",
-            "roket baru canggih misi ke mars",
-            "stornomi nebula orion void",
-            "roket sls dan astronot modern",
-            "eksoplanet dan teleskop james webb",
-            "astronot & roket futuristik 4k"
-        ];
-        const randomQuery = queriesList[Math.floor(Math.random() * queriesList.length)];
-        currentSearchQuery = randomQuery;
-        
-        let finalImages = null;
-        // Coba ambil dari Google Custom Search (gambar asli)
-        const googleResults = await searchGoogleImagesReal(currentSearchQuery);
-        if (googleResults && googleResults.length > 0) {
-            finalImages = googleResults;
-            statusSpan.innerHTML = `✅ Sukses! ${finalImages.length} gambar dari Google Search • Keyword: "${currentSearchQuery}"`;
-        } else {
-            // fallback premium: gambar dari googleusercontent (tetap link google)
-            finalImages = getPremiumGoogleFallback(currentSearchQuery);
-            statusSpan.innerHTML = `✨ Menampilkan koleksi gambar Google • Astonot, Roket Baru, Stornomi (sumber: google images) • cari: "${currentSearchQuery}"`;
-        }
-        
-        // Render dengan penanda roket baru & astronot
-        renderGalleryWithRocketBadge(finalImages);
-        
-        refreshBtn.innerHTML = originalBtnHTML;
-        refreshBtn.disabled = false;
-        setTimeout(() => { rocketIcon.style.animation = ''; }, 600);
-        isLoading = false;
-    }
-    
-    // Render gallery + badge roket baru & astonot & penjelasan update
-    function renderGalleryWithRocketBadge(images) {
-        const container = document.getElementById('galleryContainer');
-        if (!images || images.length === 0) {
-            container.innerHTML = `<div class="loading-placeholder"><i class="fas fa-exclamation-triangle"></i> <p>Tidak ada gambar dari Google. Coba refresh lagi.</p></div>`;
-            return;
-        }
-        let html = '';
-        for (let img of images) {
-            const isRocket = img.title.toLowerCase().includes("roket") || img.title.toLowerCase().includes("rocket");
-            const isAstronot = img.title.toLowerCase().includes("astonot") || img.title.toLowerCase().includes("astronot");
-            const isStornomi = img.title.toLowerCase().includes("stornomi") || img.title.toLowerCase().includes("nebula") || img.title.toLowerCase().includes("supernova") || img.title.toLowerCase().includes("void");
-            
-            html += `
-                <div class="card-space">
-                    <div class="img-wrapper">
-                        <img src="${img.url}" alt="${img.title}" loading="lazy" onerror="this.src='https://placehold.co/400x200/0a0f1f/0ff?text=Google+Image';">
-                    </div>
-                    <div class="card-info">
-                        <h3><i class="fab fa-google" style="color:#4285F4;"></i> ${escapeHtml(img.title.substring(0, 58))}</h3>
-                        <p><i class="fas fa-search"></i> Pencarian Google: "${currentSearchQuery}"</p>
-                        <div class="source-badge">
-                            <i class="fas fa-link"></i> <a href="${img.sourceLink}" target="_blank" style="color:#88ddff;">Lihat di Google Images 🔗</a>
-                        </div>
-                        ${isRocket ? '<div class="roket-notice"><i class="fas fa-rocket"></i> 🚀 ROKET BARU 2026 • VOID PROPULSION SYSTEM</div>' : ''}
-                        ${isAstronot ? '<div class="roket-notice" style="background:#004466;"><i class="fas fa-user-astronaut"></i> 👨‍🚀 ASTONOT SIS • MISI STORNOMI 25/2026</div>' : ''}
-                        ${isStornomi && !isRocket && !isAstronot ? '<div class="roket-notice" style="background:#2c0a4e;"><i class="fas fa-globe"></i> STORNOMI • Data Nebula & Void Terbaru</div>' : ''}
-                    </div>
-                </div>
-            `;
-        }
-        container.innerHTML = html;
-    }
-    
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-    
-    // Event listener untuk tombol update (ambil gambar dari google)
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        updateGalleryFromGoogle();
+
+/* ===== FIREBASE CONFIG ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDopQmdMEUdt-UFtbYZh76Y-2Wf17yL4T4",
+  authDomain: "sfs-share-37061.firebaseapp.com",
+  databaseURL: "https://sfs-share-37061-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sfs-share-37061"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref("items");
+
+let data = {};
+let filteredData = {};
+
+/* ===== DATABASE ===== */
+db.on("value", (snap) => {
+  data = snap.val() || {};
+  filteredData = data;
+  render();
+});
+
+/* ===== RENDER ITEMS ===== */
+function render() {
+  const listDiv = document.getElementById("list");
+  
+  if (Object.keys(filteredData).length === 0) {
+    listDiv.innerHTML = `
+      <div class="empty-state" style="grid-column: 1/-1;">
+        <div class="empty-state-icon">📭</div>
+        <h3>Tidak Ada Item</h3>
+        <p>Mulai dengan menambahkan item baru</p>
+      </div>
+    `;
+    return;
+  }
+
+  listDiv.innerHTML = Object.entries(filteredData)
+    .map(([k, r]) => `
+      <div class="card">
+        <img src="${r.img || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23334155%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'}" alt="${r.name}" class="card-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23334155%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'">
+        <div class="card-content">
+          <h3 class="card-title">${r.name || 'Item Tanpa Nama'}</h3>
+          <div class="card-meta">
+            <span>👤 ${r.user || 'Anonymous'}</span>
+            <span class="badge">${r.cat || 'Uncategorized'}</span>
+          </div>
+          <div class="card-buttons">
+            <button class="btn btn-open" onclick="window.open('${r.link || '#'}', '_blank')">
+              🔗 BUKA
+            </button>
+          </div>
+        </div>
+      </div>
+    `)
+    .join("");
+}
+
+/* ===== FILTER ITEMS ===== */
+function filterItems() {
+  const searchTerm = document.getElementById("search").value.toLowerCase();
+  
+  if (!searchTerm) {
+    filteredData = data;
+  } else {
+    filteredData = Object.fromEntries(
+      Object.entries(data).filter(([k, r]) => 
+        (r.name || '').toLowerCase().includes(searchTerm) ||
+        (r.user || '').toLowerCase().includes(searchTerm) ||
+        (r.cat || '').toLowerCase().includes(searchTerm)
+      )
+    );
+  }
+  
+  render();
+}
+
+/* ===== PREVIEW IMAGE ===== */
+function previewImage() {
+  const file = document.getElementById("img").files[0];
+  const preview = document.getElementById("preview");
+  
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.src = e.target.result;
+      preview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+/* ===== ADD DATA ===== */
+function addData() {
+  const file = document.getElementById("img").files[0];
+  
+  if (!document.getElementById("name").value.trim()) {
+    alert("⚠️ Nama item tidak boleh kosong");
+    return;
+  }
+  
+  if (!file) {
+    alert("⚠️ Gambar harus dipilih");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    db.push({
+      user: document.getElementById("user").value.trim() || "User",
+      name: document.getElementById("name").value.trim(),
+      link: document.getElementById("link").value.trim() || "#",
+      cat: document.getElementById("cat").value,
+      img: reader.result,
+      created: new Date().toISOString()
     });
     
-    // Inisialisasi pertama: langsung tampilkan gambar dari google (dengan fallback berkualitas)
-    window.addEventListener('load', () => {
-        updateGalleryFromGoogle();
-    });
+    closeAdd();
+    alert("✅ Item berhasil ditambahkan");
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+/* ===== ADMIN ===== */
+function openAdmin() {
+  document.getElementById("loginModal").classList.add("active");
+  document.getElementById("pass").focus();
+}
+
+function closeLogin() {
+  document.getElementById("loginModal").classList.remove("active");
+  document.getElementById("pass").value = "";
+}
+
+function login() {
+  const password = document.getElementById("pass").value;
+  const correctPassword = "1113292627";
+  
+  if (password === correctPassword) {
+    document.getElementById("loginModal").classList.remove("active");
+    document.getElementById("adminModal").classList.add("active");
+    loadAdmin();
+  } else {
+    alert("❌ Password salah");
+    document.getElementById("pass").value = "";
+    document.getElementById("pass").focus();
+  }
+}
+
+/* ===== LOAD ADMIN ===== */
+function loadAdmin() {
+  const adminDiv = document.getElementById("adminList");
+  
+  if (Object.keys(data).length === 0) {
+    adminDiv.innerHTML = '<p style="text-align:center; color: #94a3b8;">Tidak ada item untuk diedit</p>';
+    return;
+  }
+  
+  adminDiv.innerHTML = Object.entries(data)
+    .map(([k, r]) => `
+      <div class="card" style="margin-bottom: 20px;">
+        <img src="${r.img}" class="card-image" style="display:none;">
+        
+        <div class="form-group">
+          <label>Nama Item</label>
+          <input id="n${k}" type="text" value="${r.name || ''}">
+        </div>
+
+        <div class="form-group">
+          <label>Link</label>
+          <input id="l${k}" type="text" value="${r.link || ''}">
+        </div>
+
+        <div class="form-group">
+          <label>Kategori</label>
+          <select id="c${k}">
+            <option ${r.cat === "Rocket" ? "selected" : ""}>Rocket</option>
+            <option ${r.cat === "Tank" ? "selected" : ""}>Tank</option>
+            <option ${r.cat === "Pesawat" ? "selected" : ""}>Pesawat</option>
+            <option ${r.cat === "Satellite" ? "selected" : ""}>Satellite</option>
+            <option ${r.cat === "Kapal Bawah Laut" ? "selected" : ""}>Kapal Bawah Laut</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Gambar Baru (Opsional)</label>
+          <input id="i${k}" type="file" accept="image/*">
+        </div>
+
+        <div class="card-buttons">
+          <button class="btn btn-open" onclick="save('${k}')">💾 SIMPAN</button>
+          <button class="btn btn-delete" onclick="deleteItem('${k}')">🗑️ HAPUS</button>
+        </div>
+      </div>
+    `)
+    .join("");
+}
+
+/* ===== SAVE ITEM ===== */
+function save(id) {
+  const file = document.getElementById("i" + id).files[0];
+  
+  const updateData = {
+    name: document.getElementById("n" + id).value.trim(),
+    link: document.getElementById("l" + id).value.trim(),
+    cat: document.getElementById("c" + id).value
+  };
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateData.img = reader.result;
+      db.child(id).update(updateData);
+      alert("✅ Item berhasil diperbarui");
+    };
+    reader.readAsDataURL(file);
+  } else {
+    db.child(id).update(updateData);
+    alert("✅ Item berhasil diperbarui");
+  }
+}
+
+/* ===== DELETE ITEM ===== */
+function deleteItem(id) {
+  if (confirm("⚠️ Yakin ingin menghapus item ini?")) {
+    db.child(id).remove();
+    loadAdmin();
+    alert("✅ Item berhasil dihapus");
+  }
+}
+
+/* ===== MODAL CONTROLS ===== */
+function openAdd() {
+  document.getElementById("addModal").classList.add("active");
+  document.getElementById("user").focus();
+}
+
+function closeAdd() {
+  document.getElementById("addModal").classList.remove("active");
+  document.getElementById("user").value = "";
+  document.getElementById("name").value = "";
+  document.getElementById("link").value = "";
+  document.getElementById("cat").value = "Rocket";
+  document.getElementById("img").value = "";
+  document.getElementById("preview").style.display = "none";
+}
+
+function closeAdmin() {
+  document.getElementById("adminModal").classList.remove("active");
+}
+
+/* ===== CLOSE MODAL ON OUTSIDE CLICK ===== */
+document.querySelectorAll(".modal").forEach(modal => {
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.classList.remove("active");
+      if (modal.id === "addModal") closeAdd();
+      if (modal.id === "loginModal") closeLogin();
+    }
+  });
+});
+
 </script>
+
 </body>
 </html>
